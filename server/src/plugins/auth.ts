@@ -21,6 +21,11 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
       return
     }
 
+    // Skip auth for webhook routes — Stripe calls these directly, no JWT
+    if (url.startsWith('/webhooks')) {
+      return
+    }
+
     // Extract Bearer token
     const authHeader = request.headers.authorization
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
