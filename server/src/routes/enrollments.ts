@@ -1,6 +1,8 @@
 import fp from 'fastify-plugin'
 import type { FastifyPluginAsync } from 'fastify'
 import type { EnrollBody, TransferBody } from '../types/index.js'
+import { sendEmail } from '../lib/notifications.js'
+import { enrollmentConfirmation } from '../lib/email-templates.js'
 
 /**
  * Enrollment routes -- enroll, drop, and transfer students between classes.
@@ -45,6 +47,55 @@ const enrollmentRoutes: FastifyPluginAsync = async (fastify) => {
     if (typeof data === 'object' && data !== null && 'error' in data) {
       return reply.code(409).send({ error: (data as Record<string, string>).error })
     }
+
+    // Fire-and-forget: send enrollment confirmation email (COMM-01)
+    // Don't await -- email delivery should not block the API response
+    ;(async () => {
+      try {
+        // Look up student name, family email, and class name for the email
+        const { data: student } = await fastify.supabase
+          .from('students')
+          .select('first_name, last_name, family_id')
+          .eq('id', studentId)
+          .eq('organization_id', organizationId)
+          .maybeSingle()
+
+        if (!student?.family_id) return
+
+        const { data: family } = await fastify.supabase
+          .from('families')
+          .select('id, email, primary_guardian_name')
+          .eq('id', student.family_id)
+          .eq('organization_id', organizationId)
+          .maybeSingle()
+
+        if (!family?.email) return
+
+        const { data: classRow } = await fastify.supabase
+          .from('classes')
+          .select('name')
+          .eq('id', classId)
+          .eq('organization_id', organizationId)
+          .maybeSingle()
+
+        const studentName = `${student.first_name} ${student.last_name}`
+        const className = classRow?.name ?? 'class'
+        const studioName = "LaShelle's School of Dance"
+
+        await sendEmail(fastify.supabase, {
+          organizationId: organizationId!,
+          familyId: family.id,
+          studentId,
+          to: family.email,
+          subject: `Welcome to ${className}!`,
+          html: enrollmentConfirmation(studentName, className, studioName),
+          templateKey: 'enrollment_confirmation',
+          payload: { studentName, className, studioName },
+        }, fastify.log)
+      } catch (err) {
+        fastify.log.error({ error: err }, 'Failed to send enrollment confirmation email')
+      }
+    })()
 
     return reply.code(201).send(data)
   })

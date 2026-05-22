@@ -2,6 +2,8 @@ import fp from 'fastify-plugin'
 import type { FastifyPluginAsync } from 'fastify'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
+import { sendEmail } from '../lib/notifications.js'
+import { paymentReceipt } from '../lib/email-templates.js'
 
 // Stripe client — lazily initialized from env var.
 let stripeClient: Stripe | null = null
@@ -88,6 +90,55 @@ async function handleInvoicePaymentSucceeded(
   if (updateErr) {
     log.error({ error: updateErr, invoiceId: localInvoice.id }, 'Failed to mark invoice as paid')
   }
+
+  // Fire-and-forget: send payment receipt email (COMM-02)
+  ;(async () => {
+    try {
+      if (!localInvoice.family_id) return
+
+      const { data: family } = await supabase
+        .from('families')
+        .select('id, email, primary_guardian_name')
+        .eq('id', localInvoice.family_id)
+        .eq('organization_id', localInvoice.organization_id)
+        .maybeSingle()
+
+      if (!family?.email) return
+
+      const formattedAmount = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(amountPaid)
+
+      const invoiceDate = new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+
+      await sendEmail(supabase, {
+        organizationId: localInvoice.organization_id,
+        familyId: family.id,
+        to: family.email,
+        subject: 'Payment Received',
+        html: paymentReceipt(
+          family.primary_guardian_name ?? 'Valued Family',
+          formattedAmount,
+          invoiceDate,
+          'stripe',
+        ),
+        templateKey: 'payment_receipt',
+        payload: {
+          familyName: family.primary_guardian_name,
+          amount: formattedAmount,
+          invoiceDate,
+          paymentMethod: 'stripe',
+        },
+      }, log)
+    } catch (err) {
+      log.error({ error: err }, 'Failed to send payment receipt email')
+    }
+  })()
 }
 
 /**

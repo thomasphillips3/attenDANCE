@@ -1,5 +1,7 @@
 import fp from 'fastify-plugin'
 import type { FastifyPluginAsync } from 'fastify'
+import { sendEmail } from '../lib/notifications.js'
+import { absenceAlert } from '../lib/email-templates.js'
 
 /**
  * Sessions routes
@@ -64,6 +66,93 @@ const sessionsRoutes: FastifyPluginAsync = async (fastify) => {
       fastify.log.error({ error: updateError }, 'Failed to mark session completed')
       return reply.code(500).send({ error: 'Failed to submit attendance' })
     }
+
+    // Fire-and-forget: send absence alert emails for students marked absent (COMM-03)
+    ;(async () => {
+      try {
+        // Find all students marked absent in this session
+        const { data: absentRecords } = await fastify.supabase
+          .from('attendance_records')
+          .select('student_id')
+          .eq('class_session_id', sessionId)
+          .eq('organization_id', organizationId)
+          .eq('status', 'absent')
+
+        if (!absentRecords || absentRecords.length === 0) return
+
+        // Get session date and class name for the email
+        const { data: sessionInfo } = await fastify.supabase
+          .from('class_sessions')
+          .select('session_date, class_id')
+          .eq('id', sessionId)
+          .maybeSingle()
+
+        let className = 'class'
+        if (sessionInfo?.class_id) {
+          const { data: classRow } = await fastify.supabase
+            .from('classes')
+            .select('name')
+            .eq('id', sessionInfo.class_id)
+            .maybeSingle()
+          className = classRow?.name ?? 'class'
+        }
+
+        const sessionDate = sessionInfo?.session_date
+          ? new Date(sessionInfo.session_date + 'T00:00:00').toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : new Date().toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+
+        // For each absent student, look up family email and send alert
+        for (const record of absentRecords) {
+          try {
+            const { data: student } = await fastify.supabase
+              .from('students')
+              .select('first_name, last_name, family_id')
+              .eq('id', record.student_id)
+              .eq('organization_id', organizationId)
+              .maybeSingle()
+
+            if (!student?.family_id) continue
+
+            const { data: family } = await fastify.supabase
+              .from('families')
+              .select('id, email')
+              .eq('id', student.family_id)
+              .eq('organization_id', organizationId)
+              .maybeSingle()
+
+            if (!family?.email) continue
+
+            const studentName = `${student.first_name} ${student.last_name}`
+
+            await sendEmail(fastify.supabase, {
+              organizationId: organizationId!,
+              familyId: family.id,
+              studentId: record.student_id,
+              to: family.email,
+              subject: `${studentName} - Absence Notice`,
+              html: absenceAlert(studentName, className, sessionDate),
+              templateKey: 'absence_alert',
+              payload: { studentName, className, date: sessionDate },
+            }, fastify.log)
+          } catch (studentErr) {
+            fastify.log.error(
+              { error: studentErr, studentId: record.student_id },
+              'Failed to send absence alert for student',
+            )
+          }
+        }
+      } catch (err) {
+        fastify.log.error({ error: err }, 'Failed to process absence alerts')
+      }
+    })()
 
     // Step 4: return success with submittedAt computed at response time
     return reply.code(200).send({
