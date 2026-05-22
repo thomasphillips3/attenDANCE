@@ -164,21 +164,46 @@ function FamilyCard({ family }: { family: Family }) {
         </div>
       </div>
 
-      {/* Student count badge */}
-      <span
-        style={{
-          background: 'var(--color-purple-tint)',
-          color: 'var(--color-purple)',
-          fontSize: 13,
-          padding: '2px 10px',
-          borderRadius: 12,
-          fontWeight: 600,
-          whiteSpace: 'nowrap',
-          flexShrink: 0,
-        }}
-      >
-        {family.studentCount} {family.studentCount === 1 ? 'student' : 'students'}
-      </span>
+      {/* Badges + Billing link */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        {/* Student count badge */}
+        <span
+          style={{
+            background: 'var(--color-purple-tint)',
+            color: 'var(--color-purple)',
+            fontSize: 13,
+            padding: '2px 10px',
+            borderRadius: 12,
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {family.studentCount} {family.studentCount === 1 ? 'student' : 'students'}
+        </span>
+        {/* Billing link -- onClick stopPropagation prevents the parent Link from navigating */}
+        <Link
+          to={`/admin/families/${family.id}/billing`}
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 40,
+            padding: '4px 14px',
+            fontSize: 13,
+            fontWeight: 600,
+            fontFamily: 'var(--font-body)',
+            color: 'var(--color-purple)',
+            background: 'var(--color-cream)',
+            border: '1px solid var(--color-line)',
+            borderRadius: 'var(--radius-sm)',
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Billing
+        </Link>
+      </div>
     </Link>
   )
 }

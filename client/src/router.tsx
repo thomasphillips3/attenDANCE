@@ -16,6 +16,7 @@ const ClassDetail = lazy(() => import('./screens/admin/ClassDetail'))
 const BillingPage = lazy(() => import('./screens/admin/BillingPage'))
 const TuitionPlanForm = lazy(() => import('./screens/admin/TuitionPlanForm'))
 const InvoicesPage = lazy(() => import('./screens/admin/InvoicesPage'))
+const FamilyBilling = lazy(() => import('./screens/admin/FamilyBilling'))
 
 // Lazy-loaded front desk screen (Roster is heavier than ClassList)
 const Roster = lazy(() => import('./screens/Roster'))
@@ -71,6 +72,7 @@ function LazyPage({ children }: { children: React.ReactNode }) {
  *   families          -> FamiliesPage (lazy placeholder)
  *   families/new      -> FamilyForm (lazy placeholder)
  *   families/:id      -> FamilyForm (lazy placeholder)
+ *   families/:id/billing -> FamilyBilling (lazy, billing detail)
  *   classes           -> ClassesPage (lazy placeholder)
  *   classes/new       -> ClassForm (lazy placeholder)
  *   classes/:id       -> ClassDetail (lazy placeholder)
@@ -149,6 +151,14 @@ export const router = createBrowserRouter([
         element: (
           <LazyPage>
             <FamilyForm />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'families/:id/billing',
+        element: (
+          <LazyPage>
+            <FamilyBilling />
           </LazyPage>
         ),
       },

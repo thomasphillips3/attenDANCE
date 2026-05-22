@@ -11,6 +11,9 @@ import { useTuitionPlans, useDeleteTuitionPlan } from '../../hooks/useTuitionPla
 import { useDiscounts, useCreateDiscount, useDeleteDiscount } from '../../hooks/useDiscounts'
 import { useClasses } from '../../hooks/useClasses'
 import { useFamilies } from '../../hooks/useFamilies'
+import { useBillingSummary } from '../../hooks/useBillingSummary'
+import { usePayments } from '../../hooks/usePayments'
+import type { Payment } from '../../hooks/usePayments'
 import type { TuitionPlan } from '../../hooks/useTuitionPlans'
 import type { Discount, CreateDiscountPayload } from '../../hooks/useDiscounts'
 
@@ -76,11 +79,14 @@ export default function BillingPage() {
   const { data: discounts, isLoading: discountsLoading } = useDiscounts()
   const { data: classes } = useClasses()
   const { data: familiesResponse } = useFamilies()
+  const { data: summary } = useBillingSummary()
+  const { data: recentPaymentsResponse } = usePayments({ page: 1 })
   const deletePlan = useDeleteTuitionPlan()
   const createDiscount = useCreateDiscount()
   const deleteDiscount = useDeleteDiscount()
 
   const families = familiesResponse?.data ?? []
+  const recentPayments = (recentPaymentsResponse?.data ?? []).slice(0, 10)
 
   // Deactivate confirmation dialog state
   const [deactivateTarget, setDeactivateTarget] = useState<{
@@ -210,6 +216,236 @@ export default function BillingPage() {
         >
           View Invoices
         </Link>
+      </div>
+
+      {/* ================================================================= */}
+      {/* BILLING OVERVIEW                                                  */}
+      {/* ================================================================= */}
+      <div style={{ marginBottom: 40 }}>
+        {/* Summary cards row */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 16,
+            marginBottom: 24,
+          }}
+        >
+          {/* Total Outstanding */}
+          <div
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-line)',
+              borderRadius: 'var(--radius-md)',
+              padding: 16,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 700,
+                color: (summary?.totalOutstanding ?? 0) > 0 ? '#dc2626' : 'var(--color-ink)',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {formatCurrency(summary?.totalOutstanding ?? 0)}
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--color-ink-3)', marginTop: 2 }}>
+              Total Outstanding
+            </div>
+          </div>
+
+          {/* Collected This Month */}
+          <div
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-line)',
+              borderRadius: 'var(--radius-md)',
+              padding: 16,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 700,
+                color: '#166534',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {formatCurrency(summary?.collectedThisMonth ?? 0)}
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--color-ink-3)', marginTop: 2 }}>
+              Collected This Month
+            </div>
+          </div>
+
+          {/* Overdue Invoices */}
+          <div
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-line)',
+              borderRadius: 'var(--radius-md)',
+              padding: 16,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 700,
+                color: (summary?.overdueCount ?? 0) > 0 ? '#dc2626' : 'var(--color-ink)',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {summary?.overdueCount ?? 0}
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--color-ink-3)', marginTop: 2 }}>
+              Overdue Invoices
+            </div>
+          </div>
+
+          {/* Active Plans */}
+          <div
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-line)',
+              borderRadius: 'var(--radius-md)',
+              padding: 16,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 24,
+                fontWeight: 700,
+                color: 'var(--color-purple)',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              {summary?.activePlansCount ?? 0}
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--color-ink-3)', marginTop: 2 }}>
+              Active Plans
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Payments table */}
+        <h2
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 20,
+            color: 'var(--color-ink)',
+            margin: '0 0 12px 0',
+          }}
+        >
+          Recent Payments
+        </h2>
+
+        {recentPayments.length === 0 && (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: 24,
+              fontSize: 16,
+              color: 'var(--color-ink-3)',
+              fontStyle: 'italic',
+            }}
+          >
+            No payments recorded yet
+          </div>
+        )}
+
+        {recentPayments.length > 0 && (
+          <div
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-line)',
+              borderRadius: 'var(--radius-md)',
+              overflow: 'hidden',
+            }}
+          >
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                fontSize: 16,
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              <thead>
+                <tr
+                  style={{
+                    borderBottom: '1px solid var(--color-line)',
+                    background: 'var(--color-cream)',
+                  }}
+                >
+                  <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: 'var(--color-ink-2)' }}>
+                    Date
+                  </th>
+                  <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: 'var(--color-ink-2)' }}>
+                    Family
+                  </th>
+                  <th style={{ textAlign: 'right', padding: '12px 16px', fontWeight: 600, color: 'var(--color-ink-2)' }}>
+                    Amount
+                  </th>
+                  <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: 600, color: 'var(--color-ink-2)' }}>
+                    Method
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentPayments.map((payment: Payment) => {
+                  const familyId = payment.invoices?.family_id
+                  const paymentDate = new Date(payment.paid_at)
+                  const dateStr = paymentDate.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+
+                  // Find family name from loaded families
+                  const familyName = familyId
+                    ? families.find((f) => f.id === familyId)?.primary_guardian_name ?? 'Unknown'
+                    : 'Unknown'
+
+                  return (
+                    <tr
+                      key={payment.id}
+                      style={{
+                        borderBottom: '1px solid var(--color-line)',
+                      }}
+                    >
+                      <td style={{ padding: '14px 16px', color: 'var(--color-ink)' }}>
+                        {dateStr}
+                      </td>
+                      <td style={{ padding: '14px 16px' }}>
+                        {familyId ? (
+                          <Link
+                            to={`/admin/families/${familyId}/billing`}
+                            style={{
+                              color: 'var(--color-purple)',
+                              textDecoration: 'none',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {familyName}
+                          </Link>
+                        ) : (
+                          <span style={{ color: 'var(--color-ink-3)' }}>Unknown</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'right', color: 'var(--color-ink)', fontWeight: 600 }}>
+                        {formatCurrency(payment.amount)}
+                      </td>
+                      <td style={{ padding: '14px 16px', color: 'var(--color-ink-2)', textTransform: 'capitalize' }}>
+                        {payment.method}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* ================================================================= */}
