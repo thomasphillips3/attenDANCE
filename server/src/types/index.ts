@@ -109,3 +109,121 @@ export const InviteResponse = Type.Object({
   email: Type.String(),
 })
 export type InviteResponse = Static<typeof InviteResponse>
+
+// TypeBox schemas for class management (Plan 02-03)
+
+export const CreateClassBody = Type.Object({
+  name: Type.String({ minLength: 1 }),
+  type: Type.Optional(Type.Union([
+    Type.Literal('recurring'),
+    Type.Literal('drop_in'),
+    Type.Literal('workshop'),
+  ])),
+  instructorId: Type.Optional(Type.String({ format: 'uuid' })),
+  dayOfWeek: Type.Optional(Type.Number({ minimum: 0, maximum: 6 })),
+  startTime: Type.String(),
+  durationMinutes: Type.Number({ minimum: 1 }),
+  room: Type.Optional(Type.String()),
+  capacity: Type.Optional(Type.Number({ minimum: 1 })),
+  ageMin: Type.Optional(Type.Number({ minimum: 0 })),
+  ageMax: Type.Optional(Type.Number({ minimum: 0 })),
+  level: Type.Optional(Type.String()),
+})
+export type CreateClassBody = Static<typeof CreateClassBody>
+
+export const UpdateClassBody = Type.Object({
+  name: Type.Optional(Type.String({ minLength: 1 })),
+  type: Type.Optional(Type.Union([
+    Type.Literal('recurring'),
+    Type.Literal('drop_in'),
+    Type.Literal('workshop'),
+  ])),
+  instructorId: Type.Optional(Type.String({ format: 'uuid' })),
+  dayOfWeek: Type.Optional(Type.Number({ minimum: 0, maximum: 6 })),
+  startTime: Type.Optional(Type.String()),
+  durationMinutes: Type.Optional(Type.Number({ minimum: 1 })),
+  room: Type.Optional(Type.String()),
+  capacity: Type.Optional(Type.Number({ minimum: 1 })),
+  ageMin: Type.Optional(Type.Number({ minimum: 0 })),
+  ageMax: Type.Optional(Type.Number({ minimum: 0 })),
+  level: Type.Optional(Type.String()),
+  active: Type.Optional(Type.Boolean()),
+})
+export type UpdateClassBody = Static<typeof UpdateClassBody>
+
+export const ClassListQuery = Type.Object({
+  active: Type.Optional(Type.Boolean()),
+})
+export type ClassListQuery = Static<typeof ClassListQuery>
+
+// ── Student CRUD schemas (Plan 02-02) ──────────────────────────────────
+
+export const CreateStudentBody = Type.Object({
+  familyId: Type.String({ format: 'uuid' }),
+  firstName: Type.String({ minLength: 1 }),
+  lastName: Type.String({ minLength: 1 }),
+  dob: Type.Optional(Type.String({ format: 'date' })),
+  photoUrl: Type.Optional(Type.String()),
+  medicalNotes: Type.Optional(Type.String()),
+  skillLevel: Type.Optional(Type.String()),
+})
+export type CreateStudentBody = Static<typeof CreateStudentBody>
+
+export const UpdateStudentBody = Type.Object({
+  familyId: Type.Optional(Type.String({ format: 'uuid' })),
+  firstName: Type.Optional(Type.String({ minLength: 1 })),
+  lastName: Type.Optional(Type.String({ minLength: 1 })),
+  dob: Type.Optional(Type.String({ format: 'date' })),
+  photoUrl: Type.Optional(Type.String()),
+  medicalNotes: Type.Optional(Type.String()),
+  skillLevel: Type.Optional(Type.String()),
+  active: Type.Optional(Type.Boolean()),
+})
+export type UpdateStudentBody = Static<typeof UpdateStudentBody>
+
+export const StudentListQuery = Type.Object({
+  search: Type.Optional(Type.String()),
+  classId: Type.Optional(Type.String({ format: 'uuid' })),
+  active: Type.Optional(Type.Boolean()),
+  page: Type.Optional(Type.Number({ default: 1 })),
+  limit: Type.Optional(Type.Number({ default: 50, maximum: 100 })),
+})
+export type StudentListQuery = Static<typeof StudentListQuery>
+
+// ── Family CRUD schemas (Plan 02-02) ───────────────────────────────────
+
+export const CreateFamilyBody = Type.Object({
+  primaryGuardianName: Type.String({ minLength: 1 }),
+  email: Type.String(),
+  phone: Type.Optional(Type.String()),
+  secondaryGuardianName: Type.Optional(Type.String()),
+  emergencyContactName: Type.Optional(Type.String()),
+  emergencyContactPhone: Type.Optional(Type.String()),
+  address: Type.Optional(Type.String()),
+})
+export type CreateFamilyBody = Static<typeof CreateFamilyBody>
+
+export const UpdateFamilyBody = Type.Object({
+  primaryGuardianName: Type.Optional(Type.String({ minLength: 1 })),
+  email: Type.Optional(Type.String()),
+  phone: Type.Optional(Type.String()),
+  secondaryGuardianName: Type.Optional(Type.String()),
+  emergencyContactName: Type.Optional(Type.String()),
+  emergencyContactPhone: Type.Optional(Type.String()),
+  address: Type.Optional(Type.String()),
+})
+export type UpdateFamilyBody = Static<typeof UpdateFamilyBody>
+
+export const FamilyListQuery = Type.Object({
+  page: Type.Optional(Type.Number({ default: 1 })),
+  limit: Type.Optional(Type.Number({ default: 50, maximum: 100 })),
+})
+export type FamilyListQuery = Static<typeof FamilyListQuery>
+
+// ── RFID Card schemas (Plan 02-02) ─────────────────────────────────────
+
+export const CreateRfidCardBody = Type.Object({
+  studentId: Type.String({ format: 'uuid' }),
+  cardUid: Type.String({ minLength: 1 }),
+})
+export type CreateRfidCardBody = Static<typeof CreateRfidCardBody>
