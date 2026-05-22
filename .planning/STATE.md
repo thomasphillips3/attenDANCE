@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-05-21)
 ## Current Position
 
 Phase: 1 of 5 (Attendance MVP)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-05-21 — Roadmap created; all 55 v1 requirements mapped across 5 phases
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-05-21 — Plan 01-01 complete: walking skeleton (schema, API scaffold, Vite PWA)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 5% (1/4 plans in Phase 1)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: ~4 hours
+- Total execution time: ~4 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| Phase 1: Attendance MVP | 1 | ~4 hours | ~4 hours |
 
 **Recent Trend:**
-- Last 5 plans: none yet
-- Trend: -
+- Last 5 plans: 01-01 (4h)
+- Trend: baseline established
 
 *Updated after each plan completion*
 
@@ -47,6 +47,9 @@ Recent decisions affecting current work:
 - Stripe webhook handler must return 200 immediately and process asynchronously via `webhook_events` table. Synchronous work before 200 = duplicate notifications.
 - Validate Carollette's fee types (monthly tuition, registration fee, costume deposit, recital fee, sibling discount) with a 30-minute interview before writing any billing code in Phase 3.
 - Start Twilio A2P 10DLC registration (brand + campaign, ~$14 one-time, 1-2 week approval) during Phase 3 at the latest — needed before Phase 4 ships SMS.
+- RLS policies MUST use subselect pattern `(SELECT (auth.jwt() -> 'app_metadata' ->> 'organization_id')::uuid)` — bare `auth.jwt()` outside a subselect causes per-row re-evaluation (performance) and policy bypass risk.
+- tsx watch --env-file flag order: `tsx watch --env-file=.env src/index.ts` — env-file flag must follow the `watch` subcommand.
+- Tailwind v4 Google Fonts @import must precede `@import 'tailwindcss'` to satisfy CSS @import ordering rules.
 
 ### Pending Todos
 
@@ -65,5 +68,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-21
-Stopped at: Roadmap created and written. REQUIREMENTS.md traceability updated. Ready for /gsd:plan-phase 1.
+Stopped at: Plan 01-01 complete. Walking skeleton committed (bde042b, 09a9247, 9eed29d). Manual Supabase setup steps required before Plan 01-02.
 Resume file: None

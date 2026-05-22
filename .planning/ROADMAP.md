@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Walking skeleton: Supabase schema + RLS + Auth Hook + Fastify scaffold + Vite PWA login
+- [x] 01-01-PLAN.md — Walking skeleton: Supabase schema + RLS + Auth Hook + Fastify scaffold + Vite PWA login
 - [ ] 01-02-PLAN.md — Class list and roster display with IndexedDB caching
 - [ ] 01-03-PLAN.md — Attendance marking with offline queue and OfflineBanner
 - [ ] 01-04-PLAN.md — Submit confirmation, RFID stub, admin invite, password reset
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Attendance MVP | 0/4 | Not started | - |
+| 1. Attendance MVP | 1/4 | In progress | - |
 | 2. Studio Management | 0/TBD | Not started | - |
 | 3. Billing | 0/TBD | Not started | - |
 | 4. Communications and Parent Portal | 0/TBD | Not started | - |
