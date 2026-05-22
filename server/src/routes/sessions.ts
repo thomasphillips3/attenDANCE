@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin'
 import type { FastifyPluginAsync } from 'fastify'
-import { sendEmail } from '../lib/notifications.js'
+import { sendEmail, sendSMS } from '../lib/notifications.js'
 import { absenceAlert } from '../lib/email-templates.js'
 
 /**
@@ -123,25 +123,41 @@ const sessionsRoutes: FastifyPluginAsync = async (fastify) => {
 
             const { data: family } = await fastify.supabase
               .from('families')
-              .select('id, email')
+              .select('id, email, phone')
               .eq('id', student.family_id)
               .eq('organization_id', organizationId)
               .maybeSingle()
 
-            if (!family?.email) continue
+            if (!family) continue
 
             const studentName = `${student.first_name} ${student.last_name}`
 
-            await sendEmail(fastify.supabase, {
-              organizationId: organizationId!,
-              familyId: family.id,
-              studentId: record.student_id,
-              to: family.email,
-              subject: `${studentName} - Absence Notice`,
-              html: absenceAlert(studentName, className, sessionDate),
-              templateKey: 'absence_alert',
-              payload: { studentName, className, date: sessionDate },
-            }, fastify.log)
+            // Send email absence alert if family has email
+            if (family.email) {
+              await sendEmail(fastify.supabase, {
+                organizationId: organizationId!,
+                familyId: family.id,
+                studentId: record.student_id,
+                to: family.email,
+                subject: `${studentName} - Absence Notice`,
+                html: absenceAlert(studentName, className, sessionDate),
+                templateKey: 'absence_alert',
+                payload: { studentName, className, date: sessionDate },
+              }, fastify.log)
+            }
+
+            // Send SMS absence alert if family has phone (COMM-04)
+            if (family.phone) {
+              await sendSMS(fastify.supabase, {
+                organizationId: organizationId!,
+                familyId: family.id,
+                studentId: record.student_id,
+                to: family.phone,
+                body: `LSODance: ${studentName} was marked absent from ${className} on ${sessionDate}. Contact us with questions.`,
+                templateKey: 'absence_alert_sms',
+                payload: { studentName, className, date: sessionDate },
+              }, fastify.log)
+            }
           } catch (studentErr) {
             fastify.log.error(
               { error: studentErr, studentId: record.student_id },

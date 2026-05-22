@@ -2,6 +2,8 @@ import fp from 'fastify-plugin'
 import Stripe from 'stripe'
 import type { FastifyPluginAsync } from 'fastify'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { sendSMS, sendEmail } from '../lib/notifications.js'
+import { paymentReminderEmail } from '../lib/email-templates.js'
 import type {
   CreateTuitionPlanBody,
   UpdateTuitionPlanBody,
@@ -1292,6 +1294,123 @@ const billingRoutes: FastifyPluginAsync = async (fastify) => {
       }
     }
   )
+
+  // ===========================================================================
+  // PAYMENT REMINDERS
+  // ===========================================================================
+
+  // ---------------------------------------------------------------------------
+  // POST /billing/send-reminders -- admin-only batch payment reminder
+  //
+  // Queries overdue and pending invoices, sends SMS (and email) to each family
+  // with outstanding balance. Returns count of reminders sent. (COMM-05, COMM-07)
+  // ---------------------------------------------------------------------------
+  fastify.post('/billing/send-reminders', async (request, reply) => {
+    const organizationId = request.organizationId
+
+    if (request.role !== 'admin') {
+      return reply.code(403).send({ error: 'Admin role required' })
+    }
+    if (!organizationId) {
+      return reply.code(401).send({ error: 'Missing organization context' })
+    }
+
+    // Find overdue and pending invoices with family contact info
+    const { data: invoices, error: queryErr } = await fastify.supabase
+      .from('invoices')
+      .select('id, family_id, amount, due_date, status, families:family_id(id, primary_guardian_name, email, phone)')
+      .eq('organization_id', organizationId)
+      .in('status', ['overdue', 'pending'])
+      .order('due_date', { ascending: true })
+
+    if (queryErr) {
+      fastify.log.error({ error: queryErr }, 'Failed to query invoices for reminders')
+      return reply.code(500).send({ error: 'Failed to query invoices' })
+    }
+
+    if (!invoices || invoices.length === 0) {
+      return reply.code(200).send({ sent: 0, message: 'No overdue or pending invoices found' })
+    }
+
+    // Deduplicate by family -- send one reminder per family with their total outstanding
+    const familyMap = new Map<string, {
+      familyId: string
+      name: string
+      email: string | null
+      phone: string | null
+      totalAmount: number
+      earliestDue: string
+    }>()
+
+    for (const inv of invoices) {
+      // Supabase join returns the FK relation as an object (single) or array depending on cardinality.
+      // For a many-to-one (invoice -> family), it's a single object, but TS types it as array.
+      const rawFamily = inv.families as unknown
+      const family = (Array.isArray(rawFamily) ? rawFamily[0] : rawFamily) as { id: string; primary_guardian_name: string; email: string | null; phone: string | null } | null | undefined
+      if (!family) continue
+
+      const existing = familyMap.get(family.id)
+      if (existing) {
+        existing.totalAmount += Number(inv.amount)
+        if (inv.due_date < existing.earliestDue) {
+          existing.earliestDue = inv.due_date
+        }
+      } else {
+        familyMap.set(family.id, {
+          familyId: family.id,
+          name: family.primary_guardian_name,
+          email: family.email,
+          phone: family.phone,
+          totalAmount: Number(inv.amount),
+          earliestDue: inv.due_date,
+        })
+      }
+    }
+
+    let sentCount = 0
+
+    for (const [, info] of familyMap) {
+      const amountStr = `$${info.totalAmount.toFixed(2)}`
+      const dueDateStr = new Date(info.earliestDue + 'T00:00:00').toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+
+      // Send SMS reminder if family has phone (COMM-05)
+      if (info.phone) {
+        sendSMS(fastify.supabase, {
+          organizationId,
+          familyId: info.familyId,
+          to: info.phone,
+          body: `LSODance: Your payment of ${amountStr} is due ${dueDateStr}. Contact the studio with questions.`,
+          templateKey: 'payment_reminder_sms',
+          payload: { amount: amountStr, dueDate: dueDateStr, familyName: info.name },
+        }, fastify.log).catch(() => {})
+        sentCount++
+      }
+
+      // Send email reminder too if family has email (COMM-07)
+      if (info.email) {
+        sendEmail(fastify.supabase, {
+          organizationId,
+          familyId: info.familyId,
+          to: info.email,
+          subject: 'Tuition Payment Reminder - LSODance',
+          html: paymentReminderEmail(info.name, amountStr, dueDateStr),
+          templateKey: 'payment_reminder',
+          payload: { amount: amountStr, dueDate: dueDateStr, familyName: info.name },
+        }, fastify.log).catch(() => {})
+        sentCount++
+      }
+    }
+
+    return reply.code(200).send({
+      sent: sentCount,
+      families: familyMap.size,
+      message: `Sent ${sentCount} reminders to ${familyMap.size} families`,
+    })
+  })
 }
 
 export default fp(billingRoutes, {

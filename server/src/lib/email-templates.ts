@@ -146,3 +146,50 @@ export function absenceAlert(
   `
   return emailWrapper(`${studentName} - Absence Notice`, body)
 }
+
+// ---------------------------------------------------------------------------
+// Payment reminder
+// ---------------------------------------------------------------------------
+
+export function paymentReminderEmail(
+  familyName: string,
+  amount: string,
+  dueDate: string,
+): string {
+  const body = `
+    <h1 style="font-family:'DM Serif Display',Georgia,serif;font-size:26px;color:${PURPLE};margin:0 0 16px 0;font-weight:400;">
+      Payment Reminder
+    </h1>
+    <p style="margin:0 0 16px 0;">
+      Hi ${familyName}, this is a friendly reminder that your tuition payment of
+      <strong>${amount}</strong> is due on <strong>${dueDate}</strong>.
+    </p>
+    <p style="margin:0 0 16px 0;">
+      If you've already made this payment, please disregard this notice.
+      If you have any questions about your balance, please contact the studio.
+    </p>
+    <p style="margin:0;color:${INK_2};font-size:14px;">
+      Thank you for your prompt attention!
+    </p>
+  `
+  return emailWrapper('Tuition Payment Reminder', body)
+}
+
+// ---------------------------------------------------------------------------
+// Generic announcement (broadcast)
+// ---------------------------------------------------------------------------
+
+export function announcementEmail(
+  subject: string,
+  message: string,
+): string {
+  const body = `
+    <h1 style="font-family:'DM Serif Display',Georgia,serif;font-size:26px;color:${PURPLE};margin:0 0 16px 0;font-weight:400;">
+      ${subject}
+    </h1>
+    <p style="margin:0 0 16px 0;white-space:pre-wrap;">
+      ${message}
+    </p>
+  `
+  return emailWrapper(subject, body)
+}
