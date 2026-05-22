@@ -227,3 +227,18 @@ export const CreateRfidCardBody = Type.Object({
   cardUid: Type.String({ minLength: 1 }),
 })
 export type CreateRfidCardBody = Static<typeof CreateRfidCardBody>
+
+// ── Enrollment schemas (Plan 02-04) ───────────────────────────────────
+
+export const EnrollBody = Type.Object({
+  studentId: Type.String({ format: 'uuid' }),
+  classId: Type.String({ format: 'uuid' }),
+})
+export type EnrollBody = Static<typeof EnrollBody>
+
+export const TransferBody = Type.Object({
+  studentId: Type.String({ format: 'uuid' }),
+  fromClassId: Type.String({ format: 'uuid' }),
+  toClassId: Type.String({ format: 'uuid' }),
+})
+export type TransferBody = Static<typeof TransferBody>

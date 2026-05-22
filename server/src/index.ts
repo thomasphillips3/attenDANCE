@@ -11,6 +11,7 @@ import classesRoutes from './routes/classes.js'
 import studentsRoutes from './routes/students.js'
 import familiesRoutes from './routes/families.js'
 import rfidCardsRoutes from './routes/rfid-cards.js'
+import enrollmentsRoutes from './routes/enrollments.js'
 
 const fastify = Fastify({
   logger: true,
@@ -34,6 +35,7 @@ await fastify.register(classesRoutes)
 await fastify.register(studentsRoutes)
 await fastify.register(familiesRoutes)
 await fastify.register(rfidCardsRoutes)
+await fastify.register(enrollmentsRoutes)
 
 const port = Number(process.env.PORT) || 3001
 const host = '0.0.0.0'

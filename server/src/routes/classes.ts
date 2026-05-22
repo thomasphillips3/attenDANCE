@@ -108,7 +108,7 @@ const classesRoutes: FastifyPluginAsync = async (fastify) => {
     // Fetch enrollments with student details
     const { data: enrollments, error: enrollError } = await fastify.supabase
       .from('enrollments')
-      .select('id, status, student_id, students(id, first_name, last_name, active, photo_url)')
+      .select('id, status, student_id, enrolled_at, students(id, first_name, last_name, active, photo_url)')
       .eq('class_id', classId)
       .eq('organization_id', organizationId)
       .order('enrolled_at')
