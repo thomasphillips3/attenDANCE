@@ -1,0 +1,93 @@
+/* LSODance — design tokens
+ * Anchor: brand purple #8f2db5
+ * Type: DM Serif Display (artistic display) + Atkinson Hyperlegible (accessible body)
+ */
+
+:root {
+  /* Brand */
+  --purple: #8f2db5;
+  --purple-deep: #6b228a;        /* ~20% darker for pressed/active */
+  --purple-tint: #f0e1f6;        /* soft surface tint */
+  --purple-tint-strong: #d9b8e8; /* card accent / hover */
+  --purple-ink: #3d1252;         /* very dark purple for type-on-tint */
+
+  /* Surfaces & ink */
+  --white: #ffffff;
+  --cream: #fbf8f4;              /* off-white admin bg, warmer than pure */
+  --paper: #f7f3ee;              /* slight warm paper tint */
+  --line: #ece6dd;               /* hairline borders */
+  --line-strong: #d9d2c5;
+  --ink: #1a1a1a;
+  --ink-2: #4a4a4a;
+  --ink-3: #7a7670;
+
+  /* Accent — champagne gold (prestige) */
+  --gold: #d4a84b;
+  --gold-soft: #f3e3b8;
+  --gold-ink: #6e521a;
+
+  /* Semantic */
+  --green: #16a34a;
+  --green-deep: #0f7a37;
+  --green-soft: #dcfce7;
+  --red: #dc2626;
+  --red-deep: #a81d1d;
+  --red-soft: #fee2e2;
+
+  /* Type */
+  --display: 'DM Serif Display', 'Bodoni Moda', Georgia, serif;
+  --body: 'Atkinson Hyperlegible', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Shape */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 0 rgba(0,0,0,0.04), 0 2px 8px rgba(40,20,60,0.06);
+  --shadow-card-hover: 0 6px 24px rgba(143,45,181,0.18);
+  --shadow-modal: 0 30px 80px rgba(40,20,60,0.32);
+}
+
+/* Universal reset INSIDE artboards only (scoped to .lso-screen) */
+.lso-screen, .lso-screen * { box-sizing: border-box; }
+.lso-screen {
+  font-family: var(--body);
+  color: var(--ink);
+  background: var(--white);
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-size: 18px;
+  line-height: 1.35;
+}
+.lso-screen button { font-family: inherit; }
+
+/* Status bar shared by all iPad screens */
+.lso-statusbar {
+  height: 28px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+.lso-statusbar .right { display: flex; gap: 8px; align-items: center; }
+.lso-statusbar .battery {
+  width: 28px; height: 12px; border: 1.5px solid var(--ink);
+  border-radius: 3px; position: relative;
+}
+.lso-statusbar .battery::after {
+  content: ''; position: absolute; right: -4px; top: 3px;
+  width: 2px; height: 4px; background: var(--ink); border-radius: 0 1px 1px 0;
+}
+.lso-statusbar .battery::before {
+  content: ''; position: absolute; left: 1px; top: 1px; bottom: 1px;
+  width: 78%; background: var(--ink); border-radius: 1px;
+}

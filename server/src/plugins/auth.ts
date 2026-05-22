@@ -37,10 +37,23 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
       return reply.code(401).send({ error: 'Invalid or expired token' })
     }
 
-    // Attach verified claims to the request — sourced from app_metadata only
+    // Decode JWT payload to read hook-injected claims from app_metadata.
+    // getUser() returns the DB row which does NOT include hook-injected fields.
+    // The Custom Access Token Hook writes role + organization_id into the JWT
+    // at mint time — we must read them from the token itself.
+    let jwtAppMetadata: Record<string, unknown> = {}
+    try {
+      const payloadB64 = token.split('.')[1]
+      const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString())
+      jwtAppMetadata = payload.app_metadata ?? {}
+    } catch {
+      jwtAppMetadata = user.app_metadata ?? {}
+    }
+
+    // Attach verified claims to the request — sourced from JWT app_metadata only
     request.user = user
-    request.organizationId = user.app_metadata?.organization_id as string | undefined
-    request.role = user.app_metadata?.role as string | undefined
+    request.organizationId = jwtAppMetadata.organization_id as string | undefined
+    request.role = jwtAppMetadata.role as string | undefined
   })
 }
 
