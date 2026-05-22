@@ -10,7 +10,11 @@ import { createAnonClient } from './supabase.js'
  *
  * Roles and organizationId are read from app_metadata ONLY — never from
  * user_metadata, which is user-writable. The Custom Access Token Hook in
- * migration 003 injects these values at JWT mint time.
+ * migration 003 (updated in 009) injects these values at JWT mint time.
+ *
+ * Parent users also get family_id injected by the hook (migration 009).
+ * This is attached to request.familyId so parent routes can scope queries
+ * to the parent's own family without trusting request parameters.
  */
 const authPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.addHook('preHandler', async (request, reply) => {
@@ -59,6 +63,8 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
     request.user = user
     request.organizationId = jwtAppMetadata.organization_id as string | undefined
     request.role = jwtAppMetadata.role as string | undefined
+    // Parent users get family_id from the hook (migration 009)
+    request.familyId = jwtAppMetadata.family_id as string | undefined
   })
 }
 

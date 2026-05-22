@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin'
 import type { FastifyPluginAsync } from 'fastify'
-import type { InviteBody } from '../types/index.js'
+import type { InviteBody, InviteParentBody } from '../types/index.js'
 
 /**
  * Auth routes
@@ -51,6 +51,75 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     // Step 4: return success
     return reply.code(200).send({ message: 'Invitation sent', email })
+  })
+
+  /**
+   * POST /auth/invite-parent — admin-only endpoint to invite a parent.
+   *
+   * Creates a Supabase Auth user for the parent, links parent_user_id to the
+   * family record, and sends a magic link email. The custom_access_token_hook
+   * (migration 009) will inject role='parent' + family_id into the JWT on login.
+   *
+   * Security: admin role gate + organization scoping on the family lookup.
+   */
+  fastify.post<{ Body: InviteParentBody }>('/auth/invite-parent', async (request, reply) => {
+    // Role gate — admin only
+    if (request.role !== 'admin') {
+      return reply.code(403).send({ error: 'Admin role required' })
+    }
+
+    const organizationId = request.organizationId
+    if (!organizationId) {
+      return reply.code(401).send({ error: 'Missing organization context' })
+    }
+
+    const { familyId, email } = request.body
+    if (!familyId || !email) {
+      return reply.code(400).send({ error: 'familyId and email are required' })
+    }
+
+    // Verify the family exists and belongs to this organization
+    const { data: family, error: familyError } = await fastify.supabase
+      .from('families')
+      .select('id, parent_user_id')
+      .eq('id', familyId)
+      .eq('organization_id', organizationId)
+      .single()
+
+    if (familyError || !family) {
+      return reply.code(404).send({ error: 'Family not found' })
+    }
+
+    if (family.parent_user_id) {
+      return reply.code(409).send({ error: 'This family already has a parent account linked' })
+    }
+
+    // Create the auth user and send magic link invitation
+    const { data: inviteData, error: inviteError } = await fastify.supabase.auth.admin.inviteUserByEmail(email, {
+      data: { invited: true, is_parent: true },
+    })
+
+    if (inviteError) {
+      fastify.log.error({ error: inviteError }, 'Failed to send parent invitation')
+      return reply.code(500).send({ error: inviteError.message })
+    }
+
+    // Link the new auth user to the family record
+    const userId = inviteData?.user?.id
+    if (userId) {
+      const { error: updateError } = await fastify.supabase
+        .from('families')
+        .update({ parent_user_id: userId, email })
+        .eq('id', familyId)
+        .eq('organization_id', organizationId)
+
+      if (updateError) {
+        fastify.log.error({ error: updateError }, 'Failed to link parent user to family')
+        return reply.code(500).send({ error: 'Invitation sent but failed to link to family' })
+      }
+    }
+
+    return reply.code(200).send({ message: 'Parent invitation sent', email, familyId })
   })
 }
 

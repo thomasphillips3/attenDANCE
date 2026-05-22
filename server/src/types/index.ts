@@ -362,3 +362,29 @@ export const NotificationListQuery = Type.Object({
   offset: Type.Optional(Type.Number({ default: 0 })),
 })
 export type NotificationListQuery = Static<typeof NotificationListQuery>
+
+// ── Parent Portal schemas (Plan 04-03) ────────────────────────────────
+
+export const InviteParentBody = Type.Object({
+  familyId: Type.String({ format: 'uuid' }),
+  email: Type.String(),
+})
+export type InviteParentBody = Static<typeof InviteParentBody>
+
+export const UpdateParentProfileBody = Type.Object({
+  primaryGuardianName: Type.Optional(Type.String({ minLength: 1 })),
+  secondaryGuardianName: Type.Optional(Type.String()),
+  email: Type.Optional(Type.String()),
+  phone: Type.Optional(Type.String()),
+  emergencyContactName: Type.Optional(Type.String()),
+  emergencyContactPhone: Type.Optional(Type.String()),
+  address: Type.Optional(Type.String()),
+})
+export type UpdateParentProfileBody = Static<typeof UpdateParentProfileBody>
+
+export const ParentAttendanceQuery = Type.Object({
+  studentId: Type.Optional(Type.String({ format: 'uuid' })),
+  startDate: Type.Optional(Type.String({ format: 'date' })),
+  endDate: Type.Optional(Type.String({ format: 'date' })),
+})
+export type ParentAttendanceQuery = Static<typeof ParentAttendanceQuery>
