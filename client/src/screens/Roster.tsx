@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useRoster } from '../hooks/useRoster'
 import { useSessions } from '../hooks/useSessions'
+import { useAuth } from '../hooks/useAuth'
 import { StudentRow } from '../components/StudentRow'
+import { db } from '../lib/db'
+import type { QueuedAttendance } from '../lib/db'
+
+type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused'
+
+const VITE_API_URL = import.meta.env.VITE_API_URL as string
 
 interface RosterProps {
   sessionId: string
@@ -30,6 +37,10 @@ interface RosterProps {
 export function Roster({ sessionId, onBack }: RosterProps) {
   const { students, isLoading, isOffline } = useRoster(sessionId)
   const { sessions } = useSessions()
+  const { session: authSession } = useAuth()
+
+  // Access token for PATCH /attendance API calls
+  const token = authSession?.access_token
 
   // Find session metadata for header display
   const session = sessions.find((s) => s.id === sessionId)
@@ -53,15 +64,67 @@ export function Roster({ sessionId, onBack }: RosterProps) {
   }, [students])
 
   // Compute live counts from localStatus
+  // presentCount: 'present' OR 'late' both count as attended (ATTN-04)
   const presentCount = Object.values(localStatus).filter(
     (s) => s === 'present' || s === 'late'
   ).length
 
   const absentCount = Object.values(localStatus).filter((s) => s === 'absent').length
 
-  // onMark: update local state immediately. Plan 03 adds IndexedDB write + API call here.
-  const handleMark = (studentId: string, status: string) => {
-    setLocalStatus((prev) => ({ ...prev, [studentId]: status }))
+  /**
+   * onMark — full optimistic marking flow (Plan 03).
+   *
+   * Step 1: Update local UI state immediately (synchronous — no await).
+   * Step 2: Generate idempotency key stamped NOW.
+   * Step 3: Durable IndexedDB write — must complete before any fetch.
+   * Step 4: Fire-and-forget PATCH if online — marks entry synced on success.
+   *
+   * createdAt is Date.now() called HERE in onMark — not in any callback or timeout.
+   * This preserves the tap timestamp for correct chronological queue replay (PITFALLS.md Pitfall 1).
+   */
+  const onMark = async (studentId: string, status: string) => {
+    const attendanceStatus = status as AttendanceStatus
+
+    // Step 1: immediate local UI update — synchronous, no await
+    setLocalStatus((prev) => ({ ...prev, [studentId]: attendanceStatus }))
+
+    // Step 2: generate idempotency key stamped at tap time
+    const clientId = crypto.randomUUID()
+
+    // Step 3: durable IndexedDB write — must happen before any fetch
+    const queueEntry: Omit<QueuedAttendance, 'id'> = {
+      clientId,
+      studentId,
+      sessionId,
+      status: attendanceStatus,
+      createdAt: Date.now(), // CRITICAL: stamp at tap time, not sync time
+      synced: 0,
+      retries: 0,
+    }
+    await db.attendance_queue.add(queueEntry)
+
+    // Step 4: fire-and-forget API call if online
+    if (navigator.onLine && token) {
+      ;(async () => {
+        try {
+          const res = await fetch(`${VITE_API_URL}/attendance`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+              'X-Idempotency-Key': clientId,
+            },
+            body: JSON.stringify({ sessionId, studentId, status: attendanceStatus }),
+          })
+          if (res.ok || res.status === 409) {
+            await db.attendance_queue.where('clientId').equals(clientId).modify({ synced: 1 })
+          }
+          // On other errors: stays in queue, drainQueue retries on reconnect
+        } catch {
+          // Network error: stays in queue, drainQueue retries on reconnect
+        }
+      })()
+    }
   }
 
   // Format "HH:MM" 24h → "H:MM AM/PM"
@@ -244,7 +307,7 @@ export function Roster({ sessionId, onBack }: RosterProps) {
               key={student.studentId}
               student={student}
               currentStatus={localStatus[student.studentId] ?? null}
-              onMark={handleMark}
+              onMark={onMark}
             />
           ))
         )}
