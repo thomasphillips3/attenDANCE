@@ -57,3 +57,23 @@ export const RosterStudent = Type.Object({
   ])),
 })
 export type RosterStudent = Static<typeof RosterStudent>
+
+// TypeBox schemas for PATCH /attendance — mark a student present/absent/late/excused
+export const AttendanceMarkBody = Type.Object({
+  sessionId: Type.String(),
+  studentId: Type.String(),
+  status: Type.Union([
+    Type.Literal('present'),
+    Type.Literal('absent'),
+    Type.Literal('late'),
+    Type.Literal('excused'),
+  ]),
+})
+export type AttendanceMarkBody = Static<typeof AttendanceMarkBody>
+
+export const AttendanceMarkResponse = Type.Object({
+  attendanceId: Type.Optional(Type.String()),
+  status: Type.String(),
+  message: Type.Optional(Type.String()),
+})
+export type AttendanceMarkResponse = Static<typeof AttendanceMarkResponse>
