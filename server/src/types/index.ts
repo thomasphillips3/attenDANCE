@@ -8,6 +8,7 @@ declare module 'fastify' {
     user: User | undefined
     organizationId: string | undefined
     role: string | undefined
+    familyId: string | undefined
   }
 }
 
@@ -349,3 +350,15 @@ export const SubscribeBody = Type.Object({
   familyId: Type.String({ format: 'uuid' }),
 })
 export type SubscribeBody = Static<typeof SubscribeBody>
+
+// ── Notification schemas (Plan 04-01) ──────────────────────────────
+
+export const NotificationListQuery = Type.Object({
+  channel: Type.Optional(Type.Union([
+    Type.Literal('email'),
+    Type.Literal('sms'),
+  ])),
+  limit: Type.Optional(Type.Number({ default: 25, maximum: 100 })),
+  offset: Type.Optional(Type.Number({ default: 0 })),
+})
+export type NotificationListQuery = Static<typeof NotificationListQuery>
