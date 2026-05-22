@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin'
 import type { FastifyPluginAsync } from 'fastify'
 import type { UpdateParentProfileBody, ParentAttendanceQuery } from '../types/index.js'
+import { getStripe, ensureStripeCustomer } from './billing.js'
 
 /**
  * Parent Portal API routes (Plan 04-03, T-04-03-02)
@@ -374,6 +375,126 @@ const parentRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     return reply.code(200).send(updated)
+  })
+
+  // ===========================================================================
+  // INVOICES — parent can view and pay their own family's invoices (Plan 04-04)
+  // ===========================================================================
+
+  /**
+   * GET /parent/invoices — list invoices for the parent's family.
+   *
+   * Returns all invoices scoped to family_id from JWT, ordered by due_date
+   * descending. Includes status (pending/paid/overdue/waived), amount, and
+   * due_date for display in the parent portal invoice list.
+   */
+  fastify.get('/parent/invoices', async (request, reply) => {
+    const ctx = await requireParent(request, reply)
+    if (!ctx) return
+
+    const { data: invoices, error } = await fastify.supabase
+      .from('invoices')
+      .select('id, amount, status, due_date, line_items, created_at')
+      .eq('family_id', ctx.familyId)
+      .eq('organization_id', ctx.organizationId)
+      .order('due_date', { ascending: false })
+
+    if (error) {
+      fastify.log.error({ error }, 'Failed to load invoices for parent')
+      return reply.code(500).send({ error: 'Failed to load invoices' })
+    }
+
+    return reply.code(200).send({ invoices: invoices ?? [] })
+  })
+
+  /**
+   * POST /parent/invoices/:id/pay — create a Stripe PaymentIntent for an invoice.
+   *
+   * Security: verifies the invoice belongs to the parent's family before
+   * creating the PaymentIntent. Returns the clientSecret for Stripe Elements
+   * on the frontend.
+   *
+   * Flow:
+   * 1. Verify invoice belongs to parent's family and is payable (pending/overdue)
+   * 2. Ensure Stripe Customer exists for the family
+   * 3. Create PaymentIntent with invoice metadata for webhook reconciliation
+   * 4. Return clientSecret to frontend
+   */
+  fastify.post<{ Params: { id: string } }>('/parent/invoices/:id/pay', async (request, reply) => {
+    const ctx = await requireParent(request, reply)
+    if (!ctx) return
+
+    const invoiceId = request.params.id
+
+    // 1. Verify the invoice belongs to this parent's family
+    const { data: invoice, error: invoiceError } = await fastify.supabase
+      .from('invoices')
+      .select('id, family_id, amount, status, stripe_invoice_id')
+      .eq('id', invoiceId)
+      .eq('organization_id', ctx.organizationId)
+      .maybeSingle()
+
+    if (invoiceError) {
+      fastify.log.error({ error: invoiceError }, 'Failed to look up invoice for payment')
+      return reply.code(500).send({ error: 'Failed to look up invoice' })
+    }
+
+    if (!invoice) {
+      return reply.code(404).send({ error: 'Invoice not found' })
+    }
+
+    // Security check: invoice must belong to the parent's family
+    if (invoice.family_id !== ctx.familyId) {
+      return reply.code(403).send({ error: 'You can only pay invoices for your own family' })
+    }
+
+    // Only allow payment on pending or overdue invoices
+    if (invoice.status !== 'pending' && invoice.status !== 'overdue') {
+      return reply.code(400).send({
+        error: `Cannot pay an invoice with status '${invoice.status}'`,
+      })
+    }
+
+    // 2. Ensure Stripe Customer exists
+    let stripeCustomerId: string
+    try {
+      stripeCustomerId = await ensureStripeCustomer(
+        fastify.supabase,
+        ctx.familyId,
+        ctx.organizationId,
+      )
+    } catch (err) {
+      fastify.log.error({ error: err, familyId: ctx.familyId }, 'Failed to ensure Stripe customer for parent payment')
+      return reply.code(500).send({ error: 'Failed to set up payment' })
+    }
+
+    // 3. Create PaymentIntent
+    const stripe = getStripe()
+    const amountInCents = Math.round(Number(invoice.amount) * 100)
+
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amountInCents,
+        currency: 'usd',
+        customer: stripeCustomerId,
+        metadata: {
+          invoice_id: invoice.id,
+          family_id: ctx.familyId,
+          organization_id: ctx.organizationId,
+        },
+        // Automatic payment methods lets Stripe show the best options
+        automatic_payment_methods: { enabled: true },
+      })
+
+      return reply.code(200).send({
+        clientSecret: paymentIntent.client_secret,
+        amount: Number(invoice.amount),
+        invoiceId: invoice.id,
+      })
+    } catch (stripeErr) {
+      fastify.log.error({ error: stripeErr, invoiceId }, 'Failed to create PaymentIntent')
+      return reply.code(500).send({ error: 'Failed to create payment' })
+    }
   })
 }
 

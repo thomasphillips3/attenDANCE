@@ -18,7 +18,7 @@ import type {
 // Stripe client -- initialized lazily. STRIPE_SECRET_KEY must be set in
 // production; missing key is a startup error only when a Stripe route is hit.
 let stripeClient: Stripe | null = null
-function getStripe(): Stripe {
+export function getStripe(): Stripe {
   if (!stripeClient) {
     const key = process.env.STRIPE_SECRET_KEY
     if (!key) {
@@ -35,7 +35,7 @@ function getStripe(): Stripe {
  *
  * Returns the stripe_customer_id (always non-null on success).
  */
-async function ensureStripeCustomer(
+export async function ensureStripeCustomer(
   supabase: SupabaseClient,
   familyId: string,
   organizationId: string,

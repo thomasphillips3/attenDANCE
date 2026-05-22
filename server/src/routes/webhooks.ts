@@ -193,6 +193,130 @@ async function handleInvoicePaymentFailed(
 }
 
 /**
+ * payment_intent.succeeded — A one-off PaymentIntent (parent portal invoice
+ * payment via Stripe Elements) was confirmed. Look up the local invoice from
+ * the PaymentIntent metadata, insert a payment record, mark the invoice paid,
+ * and send a receipt email.
+ *
+ * This is separate from invoice.payment_succeeded which handles Stripe
+ * Invoice objects created by subscriptions.
+ */
+async function handlePaymentIntentSucceeded(
+  event: Stripe.Event,
+  supabase: SupabaseClient,
+  log: { info: Function; warn: Function; error: Function },
+): Promise<void> {
+  const paymentIntent = event.data.object as Stripe.PaymentIntent
+  const invoiceId = paymentIntent.metadata?.invoice_id
+  const amountPaid = (paymentIntent.amount ?? 0) / 100 // cents -> dollars
+
+  if (!invoiceId) {
+    // PaymentIntent not linked to a local invoice (e.g. from Stripe Dashboard)
+    log.info({ paymentIntentId: paymentIntent.id }, 'PaymentIntent has no invoice_id metadata — skipping')
+    return
+  }
+
+  // Look up local invoice
+  const { data: localInvoice, error: lookupErr } = await supabase
+    .from('invoices')
+    .select('id, organization_id, family_id, amount, status')
+    .eq('id', invoiceId)
+    .maybeSingle()
+
+  if (lookupErr) {
+    log.error({ error: lookupErr, invoiceId }, 'Failed to look up invoice for PaymentIntent')
+    return
+  }
+
+  if (!localInvoice) {
+    log.warn({ invoiceId, paymentIntentId: paymentIntent.id }, 'No local invoice found for PaymentIntent')
+    return
+  }
+
+  if (localInvoice.status === 'paid') {
+    log.info({ invoiceId }, 'Invoice already marked paid — skipping PaymentIntent handler')
+    return
+  }
+
+  // Insert payment record
+  const { error: payErr } = await supabase
+    .from('payments')
+    .insert({
+      organization_id: localInvoice.organization_id,
+      invoice_id: localInvoice.id,
+      amount: amountPaid,
+      method: 'stripe',
+      paid_at: new Date().toISOString(),
+      stripe_payment_intent_id: paymentIntent.id,
+      notes: `Stripe PaymentIntent: ${event.id}`,
+    })
+
+  if (payErr) {
+    log.error({ error: payErr, invoiceId }, 'Failed to insert payment record from PaymentIntent')
+    return
+  }
+
+  // Mark invoice as paid
+  const { error: updateErr } = await supabase
+    .from('invoices')
+    .update({ status: 'paid' })
+    .eq('id', localInvoice.id)
+
+  if (updateErr) {
+    log.error({ error: updateErr, invoiceId: localInvoice.id }, 'Failed to mark invoice as paid')
+  }
+
+  // Fire-and-forget: send payment receipt email
+  ;(async () => {
+    try {
+      if (!localInvoice.family_id) return
+
+      const { data: family } = await supabase
+        .from('families')
+        .select('id, email, primary_guardian_name')
+        .eq('id', localInvoice.family_id)
+        .eq('organization_id', localInvoice.organization_id)
+        .maybeSingle()
+
+      if (!family?.email) return
+
+      const formattedAmount = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(amountPaid)
+
+      const invoiceDate = new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+
+      await sendEmail(supabase, {
+        organizationId: localInvoice.organization_id,
+        familyId: family.id,
+        to: family.email,
+        subject: 'Payment Received',
+        html: paymentReceipt(
+          family.primary_guardian_name ?? 'Valued Family',
+          formattedAmount,
+          invoiceDate,
+          'stripe',
+        ),
+        templateKey: 'payment_receipt',
+        payload: {
+          familyName: family.primary_guardian_name,
+          amount: formattedAmount,
+          invoiceDate,
+          paymentMethod: 'stripe',
+        },
+      }, log)
+    } catch (err) {
+      log.error({ error: err }, 'Failed to send payment receipt email from PaymentIntent')
+    }
+  })()
+}
+
+/**
  * customer.subscription.deleted — A subscription was cancelled (by admin or
  * Stripe due to repeated payment failures). Log for admin awareness but do NOT
  * auto-drop enrollments — that decision belongs to a human.
@@ -296,6 +420,9 @@ const webhooksRoutes: FastifyPluginAsync = async (fastify) => {
           break
         case 'invoice.payment_failed':
           await handleInvoicePaymentFailed(event, fastify.supabase, fastify.log)
+          break
+        case 'payment_intent.succeeded':
+          await handlePaymentIntentSucceeded(event, fastify.supabase, fastify.log)
           break
         case 'customer.subscription.deleted':
           await handleSubscriptionDeleted(event, fastify.supabase, fastify.log)
