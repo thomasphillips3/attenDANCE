@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-05-22T22:37:28.639Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-05-22T22:59:00.000Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_plans: 12
+  completed_plans: 9
+  percent: 75
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-21)
 
 **Core value:** Mrs. Goodman at the front desk can take attendance for a full class in under 30 seconds on an iPad without asking for help.
-**Current focus:** Phase 2 — Studio Management
+**Current focus:** Phase 3 — Billing
 
 ## Current Position
 
-Phase: 2 of 5 (Studio Management)
-Plan: 4 of 4 in current phase
-Status: Ready to execute
+Phase: 3 of 5 (Billing)
+Plan: 2 of 4 in current phase
+Status: Executing
 Last activity: 2026-05-22
 
-Progress: [██████████] 100%
+Progress: [███████░░░] 75%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100%
 | Phase 02-studio-management P03 | 9min | 2 tasks | 8 files |
 | Phase 02-studio-management P02 | 16min | 2 tasks | 14 files |
 | Phase 02-studio-management P04 | 7min | 2 tasks | 9 files |
+| Phase 03-billing P01 | 10min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Student list explicitly selects columns excluding medical_notes (children's data T-02-10)
 - [Phase ?]: Enrollment mutations invalidate classes queryKey broadly to refresh both list and detail enrollment counts
 - [Phase ?]: RPC pattern for enrollment: check data.error for app-level errors vs Supabase error for transport/auth errors
+- [Phase 3]: Soft-delete pattern for billing records (active=false) preserves audit history for tuition plans and discounts
+- [Phase 3]: Inline discount creation form on BillingPage; separate TuitionPlanForm page for create/edit
 
 ### Pending Todos
 
@@ -98,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-22T22:37:28.634Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-05-22T22:59:00.000Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

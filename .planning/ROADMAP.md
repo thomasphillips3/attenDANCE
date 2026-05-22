@@ -72,7 +72,13 @@ Plans:
   3. Admin can apply sibling, scholarship, or staff discounts to a family and view the resulting invoice adjustment
   4. Admin can view a family's full payment history (paid, pending, overdue, waived) and manually record a cash or check payment
   5. Failed payments enter retry logic automatically; the system tracks past_due and unpaid states and does not process duplicate Stripe webhook events
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [x] 03-01-PLAN.md — Stripe SDK + Tuition Plan & Discount CRUD (completed 2026-05-22)
+- [ ] 03-02-PLAN.md — Invoice Generation + Manual Payments + Stripe Customer
+- [ ] 03-03-PLAN.md — Stripe Webhook Handler + Recurring Billing
+- [ ] 03-04-PLAN.md — Payment History UI + Billing Integration Verification
 
 ### Phase 4: Communications and Parent Portal
 **Goal**: Parents can log in to view their classes, pay invoices, and update contact info — and the system sends timely email and SMS notifications for absences, payments, and announcements without admin effort.
@@ -110,6 +116,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Attendance MVP | 3/4 | In Progress|  |
 | 2. Studio Management | 4/4 | Complete   | 2026-05-22 |
-| 3. Billing | 0/TBD | Not started | - |
+| 3. Billing | 0/4 | In Progress | - |
 | 4. Communications and Parent Portal | 0/TBD | Not started | - |
 | 5. Admin Dashboard and Operations | 0/TBD | Not started | - |
