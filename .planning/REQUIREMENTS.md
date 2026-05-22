@@ -28,10 +28,10 @@
 ### Students & Families
 
 - [x] **STUD-01**: Admin can create, edit, and deactivate student records (name, DOB, photo, medical notes, skill level)
-- [ ] **STUD-02**: Admin can create and edit family records (guardians, email, phone, emergency contact)
+- [x] **STUD-02**: Admin can create and edit family records (guardians, email, phone, emergency contact)
 - [x] **STUD-03**: Students belong to a family; families can have multiple students
-- [ ] **STUD-04**: Admin can assign RFID card UID to a student for future hardware integration
-- [ ] **STUD-05**: Admin can search and filter students by name, class, active status
+- [x] **STUD-04**: Admin can assign RFID card UID to a student for future hardware integration
+- [x] **STUD-05**: Admin can search and filter students by name, class, active status
 
 ### Classes & Enrollment
 
@@ -149,10 +149,10 @@
 | ATTN-08 | Phase 1 | Pending |
 | ATTN-09 | Phase 1 | Complete |
 | STUD-01 | Phase 2 | Complete |
-| STUD-02 | Phase 2 | Pending |
+| STUD-02 | Phase 2 | Complete |
 | STUD-03 | Phase 2 | Complete |
-| STUD-04 | Phase 2 | Pending |
-| STUD-05 | Phase 2 | Pending |
+| STUD-04 | Phase 2 | Complete |
+| STUD-05 | Phase 2 | Complete |
 | CLAS-01 | Phase 2 | Complete |
 | CLAS-02 | Phase 2 | Complete |
 | CLAS-03 | Phase 2 | Complete |
