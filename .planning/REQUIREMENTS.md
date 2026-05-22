@@ -15,10 +15,10 @@
 
 ### Attendance
 
-- [ ] **ATTN-01**: Front desk sees today's classes with done/pending/in-progress status
-- [ ] **ATTN-02**: Front desk can tap a class to open its roster
+- [x] **ATTN-01**: Front desk sees today's classes with done/pending/in-progress status
+- [x] **ATTN-02**: Front desk can tap a class to open its roster
 - [ ] **ATTN-03**: Front desk can mark each student present, absent, late, or excused with 56px+ tap targets
-- [ ] **ATTN-04**: Front desk sees present/absent counts update in real time as they mark
+- [x] **ATTN-04**: Front desk sees present/absent counts update in real time as they mark
 - [ ] **ATTN-05**: Front desk can submit attendance with a confirmation modal showing counts
 - [ ] **ATTN-06**: Submitted classes show checkmark and timestamp on the home screen
 - [ ] **ATTN-07**: Attendance works offline via IndexedDB queue and syncs on reconnect (foreground sync)
@@ -139,10 +139,10 @@
 | AUTH-03 | Phase 1 | Pending |
 | AUTH-04 | Phase 1 | Pending |
 | AUTH-05 | Phase 1 | Pending |
-| ATTN-01 | Phase 1 | Pending |
-| ATTN-02 | Phase 1 | Pending |
+| ATTN-01 | Phase 1 | Complete |
+| ATTN-02 | Phase 1 | Complete |
 | ATTN-03 | Phase 1 | Pending |
-| ATTN-04 | Phase 1 | Pending |
+| ATTN-04 | Phase 1 | Complete |
 | ATTN-05 | Phase 1 | Pending |
 | ATTN-06 | Phase 1 | Pending |
 | ATTN-07 | Phase 1 | Pending |
