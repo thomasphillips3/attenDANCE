@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Plan 01-01 complete. Walking skeleton committed (bde042b, 09a9247, 9eed29d). Manual Supabase setup steps required before Plan 01-02.
-last_updated: "2026-05-22T22:03:10.989Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-05-22T22:17:58.860Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 8
-  completed_plans: 5
-  percent: 63
+  completed_plans: 6
+  percent: 75
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-21)
 ## Current Position
 
 Phase: 2 of 5 (Studio Management)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Ready to execute
 Last activity: 2026-05-22
 
-Progress: [██████░░░░] 63%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [██████░░░░] 63%
 
 *Updated after each plan completion*
 | Phase 01-attendance-mvp P03 | 25 | 3 tasks | 6 files |
+| Phase 02-studio-management P03 | 9min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Recent decisions affecting current work:
 - Tailwind v4 Google Fonts @import must precede `@import 'tailwindcss'` to satisfy CSS @import ordering rules.
 - [Phase ?]: Roster uses default export for React.lazy compatibility; all hooks called before conditional guard return
 - [Phase ?]: Storage RLS uses subselect pattern for auth.jwt() organization_id; path convention {org_id}/{student_id}/{file} for org scoping
+- [Phase ?]: GET /staff co-located in classes.ts — only serves instructor picker; staff CRUD deferred to Phase 5
+- [Phase ?]: WeeklyCalendar uses grid row span (hour-rounded) for MVP — sub-hour pixel precision deferred
 
 ### Pending Todos
 
@@ -88,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-22T22:02:59.325Z
-Stopped at: Plan 01-01 complete. Walking skeleton committed (bde042b, 09a9247, 9eed29d). Manual Supabase setup steps required before Plan 01-02.
+Last session: 2026-05-22T22:17:58.855Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None

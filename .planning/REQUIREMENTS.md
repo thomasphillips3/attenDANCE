@@ -35,8 +35,8 @@
 
 ### Classes & Enrollment
 
-- [ ] **CLAS-01**: Admin can create and edit classes (name, type, instructor, day/time, duration, room, capacity, age range, level)
-- [ ] **CLAS-02**: Admin can view a visual weekly calendar of all classes
+- [x] **CLAS-01**: Admin can create and edit classes (name, type, instructor, day/time, duration, room, capacity, age range, level)
+- [x] **CLAS-02**: Admin can view a visual weekly calendar of all classes
 - [x] **CLAS-03**: Admin can enroll students in classes
 - [x] **CLAS-04**: System enforces capacity limits and places students on waitlist when full
 - [x] **CLAS-05**: Admin can drop or transfer students between classes
@@ -153,8 +153,8 @@
 | STUD-03 | Phase 2 | Complete |
 | STUD-04 | Phase 2 | Pending |
 | STUD-05 | Phase 2 | Pending |
-| CLAS-01 | Phase 2 | Pending |
-| CLAS-02 | Phase 2 | Pending |
+| CLAS-01 | Phase 2 | Complete |
+| CLAS-02 | Phase 2 | Complete |
 | CLAS-03 | Phase 2 | Complete |
 | CLAS-04 | Phase 2 | Complete |
 | CLAS-05 | Phase 2 | Complete |
