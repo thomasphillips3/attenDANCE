@@ -1,4 +1,4 @@
-import { Type, Static } from '@sinclair/typebox'
+import { Type, Static } from 'typebox'
 import type { User } from '@supabase/supabase-js'
 
 // Augment FastifyRequest to carry the verified Supabase user + extracted claims.
@@ -26,3 +26,34 @@ export const AuthedHealthResponse = Type.Object({
   timestamp: Type.String(),
 })
 export type AuthedHealthResponse = Static<typeof AuthedHealthResponse>
+
+// TypeBox schema for GET /sessions/today — one entry per class_session today
+export const SessionSummary = Type.Object({
+  id: Type.String(),
+  classId: Type.String(),
+  className: Type.String(),
+  instructorName: Type.Optional(Type.String()),
+  startTime: Type.String(),         // "HH:MM" 24h from classes.start_time
+  durationMinutes: Type.Number(),
+  sessionDate: Type.String(),       // "YYYY-MM-DD"
+  status: Type.Union([
+    Type.Literal('scheduled'), Type.Literal('completed'), Type.Literal('cancelled'),
+  ]),
+  presentCount: Type.Number(),
+  totalEnrolled: Type.Number(),
+})
+export type SessionSummary = Static<typeof SessionSummary>
+
+// TypeBox schema for GET /sessions/:id/roster — one entry per enrolled student
+export const RosterStudent = Type.Object({
+  studentId: Type.String(),
+  enrollmentId: Type.String(),
+  firstName: Type.String(),
+  lastName: Type.String(),
+  attendanceId: Type.Optional(Type.String()),
+  attendanceStatus: Type.Optional(Type.Union([
+    Type.Literal('present'), Type.Literal('absent'),
+    Type.Literal('late'), Type.Literal('excused'),
+  ])),
+})
+export type RosterStudent = Static<typeof RosterStudent>

@@ -3,6 +3,8 @@ import corsPlugin from './plugins/cors.js'
 import supabasePlugin from './plugins/supabase.js'
 import authPlugin from './plugins/auth.js'
 import healthRoutes from './routes/health.js'
+import sessionsRoutes from './routes/sessions.js'
+import attendanceRoutes from './routes/attendance.js'
 
 const fastify = Fastify({
   logger: true,
@@ -18,6 +20,8 @@ await fastify.register(authPlugin)
 
 // Register routes
 await fastify.register(healthRoutes)
+await fastify.register(sessionsRoutes)
+await fastify.register(attendanceRoutes)
 
 const port = Number(process.env.PORT) || 3001
 const host = '0.0.0.0'
