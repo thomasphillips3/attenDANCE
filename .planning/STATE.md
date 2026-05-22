@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-05-22T22:24:42.676Z"
+last_updated: "2026-05-22T22:37:28.639Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
-  percent: 88
+  completed_plans: 8
+  percent: 100
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-21)
 ## Current Position
 
 Phase: 2 of 5 (Studio Management)
-Plan: 3 of 4 in current phase
+Plan: 4 of 4 in current phase
 Status: Ready to execute
 Last activity: 2026-05-22
 
-Progress: [█████████░] 88%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [█████████░] 88%
 | Phase 01-attendance-mvp P03 | 25 | 3 tasks | 6 files |
 | Phase 02-studio-management P03 | 9min | 2 tasks | 8 files |
 | Phase 02-studio-management P02 | 16min | 2 tasks | 14 files |
+| Phase 02-studio-management P04 | 7min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Snake_case API responses consumed directly in frontend -- avoids camelCase mapping bugs
 - [Phase ?]: RFID card management routes (/rfid-cards) separated from Phase 1 checkin stub (/rfid/checkin)
 - [Phase ?]: Student list explicitly selects columns excluding medical_notes (children's data T-02-10)
+- [Phase ?]: Enrollment mutations invalidate classes queryKey broadly to refresh both list and detail enrollment counts
+- [Phase ?]: RPC pattern for enrollment: check data.error for app-level errors vs Supabase error for transport/auth errors
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-22T22:24:42.670Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-05-22T22:37:28.634Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None

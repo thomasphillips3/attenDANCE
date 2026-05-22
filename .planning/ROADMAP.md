@@ -13,7 +13,7 @@ Five phases that build from the front desk outward. Phase 1 delivers the core va
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Attendance MVP** - Auth, multi-tenant schema, and the full Mrs. Goodman attendance flow — offline-first, iPad-ready
-- [ ] **Phase 2: Studio Management** - Students, families, classes, enrollment, and waitlist — the data that feeds the roster
+- [x] **Phase 2: Studio Management** - Students, families, classes, enrollment, and waitlist — the data that feeds the roster (completed 2026-05-22)
 - [ ] **Phase 3: Billing** - Stripe recurring billing, invoices, payment tracking, and discounts
 - [ ] **Phase 4: Communications and Parent Portal** - Transactional email, SMS, and the parent-facing portal
 - [ ] **Phase 5: Admin Dashboard and Operations** - KPI dashboard, reports, staff portal, and event/recital management
@@ -57,7 +57,7 @@ Plans:
 - [x] 02-01-PLAN.md — Router + Admin shell + SQL migrations (enrollment functions + storage bucket)
 - [x] 02-02-PLAN.md — Family + student CRUD with photo upload, search/filter, RFID assignment
 - [x] 02-03-PLAN.md — Class CRUD with weekly calendar and instructor picker
-- [ ] 02-04-PLAN.md — Enrollment, waitlist, transfer + human verification checkpoint
+- [x] 02-04-PLAN.md — Enrollment, waitlist, transfer + human verification checkpoint
 
 **UI hint**: yes
 
@@ -109,7 +109,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Attendance MVP | 3/4 | In Progress|  |
-| 2. Studio Management | 3/4 | In Progress|  |
+| 2. Studio Management | 4/4 | Complete   | 2026-05-22 |
 | 3. Billing | 0/TBD | Not started | - |
 | 4. Communications and Parent Portal | 0/TBD | Not started | - |
 | 5. Admin Dashboard and Operations | 0/TBD | Not started | - |
