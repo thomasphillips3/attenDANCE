@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuth } from './hooks/useAuth'
 import { useStore } from './store'
+import { useSyncOnReconnect } from './lib/sync'
 import { Login } from './screens/Login'
 import { ClassList } from './screens/ClassList'
 import { Roster } from './screens/Roster'
@@ -25,6 +26,10 @@ const queryClient = new QueryClient({
 function AppContent() {
   const { session, loading } = useAuth()
   const { selectedSessionId, setSelectedSessionId } = useStore()
+
+  // Register foreground sync listeners — always active, regardless of screen.
+  // iOS-safe: uses 'online' + 'visibilitychange' events only (no BackgroundSync API).
+  useSyncOnReconnect()
 
   if (loading) {
     return (
