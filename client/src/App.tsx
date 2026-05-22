@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuth } from './hooks/useAuth'
+import { useStore } from './store'
 import { Login } from './screens/Login'
 import { ClassList } from './screens/ClassList'
+import { Roster } from './screens/Roster'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +24,7 @@ const queryClient = new QueryClient({
  */
 function AppContent() {
   const { session, loading } = useAuth()
+  const { selectedSessionId, setSelectedSessionId } = useStore()
 
   if (loading) {
     return (
@@ -52,6 +55,15 @@ function AppContent() {
 
   if (!session) {
     return <Login />
+  }
+
+  if (selectedSessionId !== null) {
+    return (
+      <Roster
+        sessionId={selectedSessionId}
+        onBack={() => setSelectedSessionId(null)}
+      />
+    )
   }
 
   return <ClassList />
