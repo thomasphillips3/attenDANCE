@@ -363,6 +363,20 @@ export const NotificationListQuery = Type.Object({
 })
 export type NotificationListQuery = Static<typeof NotificationListQuery>
 
+// ── Broadcast schemas (Plan 04-02) ────────────────────────────────────
+
+export const BroadcastBody = Type.Object({
+  channel: Type.Union([
+    Type.Literal('email'),
+    Type.Literal('sms'),
+    Type.Literal('both'),
+  ]),
+  classIds: Type.Optional(Type.Array(Type.String({ format: 'uuid' }))),
+  subject: Type.Optional(Type.String()),
+  message: Type.String({ minLength: 1 }),
+})
+export type BroadcastBody = Static<typeof BroadcastBody>
+
 // ── Parent Portal schemas (Plan 04-03) ────────────────────────────────
 
 export const InviteParentBody = Type.Object({
