@@ -2,11 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuth } from './hooks/useAuth'
 import { useStore } from './store'
 import { useSyncOnReconnect } from './lib/sync'
+import { OfflineBanner } from './components/OfflineBanner'
 import { Login } from './screens/Login'
 import { ClassList } from './screens/ClassList'
 import { Roster } from './screens/Roster'
 
-const queryClient = new QueryClient({
+// Exported so sync.ts can call queryClient.invalidateQueries after drainQueue
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
@@ -29,7 +31,8 @@ function AppContent() {
 
   // Register foreground sync listeners — always active, regardless of screen.
   // iOS-safe: uses 'online' + 'visibilitychange' events only (no BackgroundSync API).
-  useSyncOnReconnect()
+  // Pass access token so drainQueue can authenticate PATCH requests.
+  const { pendingCount } = useSyncOnReconnect(session?.access_token)
 
   if (loading) {
     return (
@@ -62,16 +65,21 @@ function AppContent() {
     return <Login />
   }
 
-  if (selectedSessionId !== null) {
-    return (
-      <Roster
-        sessionId={selectedSessionId}
-        onBack={() => setSelectedSessionId(null)}
-      />
-    )
-  }
-
-  return <ClassList />
+  return (
+    <>
+      {selectedSessionId !== null ? (
+        <Roster
+          sessionId={selectedSessionId}
+          onBack={() => setSelectedSessionId(null)}
+        />
+      ) : (
+        <ClassList />
+      )}
+      {/* OfflineBanner: gold fixed-bottom bar showing pending sync count.
+          Returns null when pendingCount === 0, so renders nothing when queue is empty. */}
+      <OfflineBanner pendingCount={pendingCount} />
+    </>
+  )
 }
 
 /**
