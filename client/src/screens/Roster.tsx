@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { useRoster } from '../hooks/useRoster'
 import { useSessions } from '../hooks/useSessions'
 import { useAuth } from '../hooks/useAuth'
@@ -12,11 +13,6 @@ import type { QueuedAttendance } from '../lib/db'
 type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused'
 
 const VITE_API_URL = import.meta.env.VITE_API_URL as string
-
-interface RosterProps {
-  sessionId: string
-  onBack: () => void
-}
 
 /**
  * Roster screen — enrolled students for a single class session.
@@ -37,8 +33,12 @@ interface RosterProps {
  *
  * Offline: useRoster sets isOffline: true on network failure; banner shown.
  */
-export function Roster({ sessionId, onBack }: RosterProps) {
-  const { students, isLoading, isOffline } = useRoster(sessionId)
+export default function Roster() {
+  const { sessionId } = useParams<{ sessionId: string }>()
+  const navigate = useNavigate()
+
+  // All hooks must be called before any conditional return (React rules of hooks)
+  const { students, isLoading, isOffline } = useRoster(sessionId ?? '')
   const { sessions } = useSessions()
   const { session: authSession } = useAuth()
   const { recordSubmittedAt } = useStore()
@@ -71,6 +71,11 @@ export function Roster({ sessionId, onBack }: RosterProps) {
     })
   }, [students])
 
+  // Guard: if no sessionId in URL params, redirect to class list
+  if (!sessionId) {
+    return <Navigate to="/" replace />
+  }
+
   // Compute live counts from localStatus
   // presentCount: 'present' OR 'late' both count as attended (ATTN-04)
   const presentCount = Object.values(localStatus).filter(
@@ -88,7 +93,7 @@ export function Roster({ sessionId, onBack }: RosterProps) {
    * On success:
    * 1. Records submittedAt in Zustand store so ClassList can show the timestamp
    * 2. Invalidates the sessions/today query so ClassList re-fetches and shows the checkmark
-   * 3. Closes the modal and calls onBack()
+   * 3. Closes the modal and navigates back to ClassList
    */
   const onConfirmSubmit = async () => {
     if (!token) return
@@ -107,7 +112,7 @@ export function Roster({ sessionId, onBack }: RosterProps) {
         // Invalidate sessions query — ClassList will re-fetch and show the checkmark
         await queryClient.invalidateQueries({ queryKey: ['sessions', 'today'] })
         setIsModalOpen(false)
-        onBack()
+        navigate('/')
       }
     } finally {
       setIsSubmitting(false)
@@ -201,7 +206,7 @@ export function Roster({ sessionId, onBack }: RosterProps) {
           {/* Back arrow — 44px touch target minimum (56px per spec) */}
           <button
             type="button"
-            onClick={onBack}
+            onClick={() => navigate('/')}
             aria-label="Back to class list"
             style={{
               width: 56,

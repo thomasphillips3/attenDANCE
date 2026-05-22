@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useSessions } from '../hooks/useSessions'
 import { useStore } from '../store'
@@ -22,7 +23,8 @@ import { ClassCard } from '../components/ClassCard'
 export function ClassList() {
   const { user, logout } = useAuth()
   const { sessions, isLoading, isOffline } = useSessions()
-  const { setSelectedSessionId, submittedAtMap } = useStore()
+  const { submittedAtMap } = useStore()
+  const navigate = useNavigate()
 
   const today = new Date()
   const dateLabel = format(today, 'EEEE, MMMM d, yyyy')
@@ -222,7 +224,7 @@ export function ClassList() {
             <ClassCard
               key={session.id}
               session={session}
-              onTap={(id) => setSelectedSessionId(id)}
+              onTap={(id) => navigate('/roster/' + id)}
               submittedAt={submittedAtMap.get(session.id)}
             />
           ))
