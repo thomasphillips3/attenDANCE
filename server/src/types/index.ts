@@ -342,3 +342,10 @@ export const PaymentListQuery = Type.Object({
   limit: Type.Optional(Type.Number({ default: 25, maximum: 100 })),
 })
 export type PaymentListQuery = Static<typeof PaymentListQuery>
+
+// ── Subscription schemas (Plan 03-03) ────────────────────────────────
+
+export const SubscribeBody = Type.Object({
+  familyId: Type.String({ format: 'uuid' }),
+})
+export type SubscribeBody = Static<typeof SubscribeBody>

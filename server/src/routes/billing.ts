@@ -12,6 +12,7 @@ import type {
   UpdateInvoiceBody,
   RecordPaymentBody,
   PaymentListQuery,
+  SubscribeBody,
 } from '../types/index.js'
 
 // Stripe client -- initialized lazily. STRIPE_SECRET_KEY must be set in
@@ -95,6 +96,89 @@ async function ensureStripeCustomer(
  * preserving billing history for audit.
  */
 const billingRoutes: FastifyPluginAsync = async (fastify) => {
+  // ===========================================================================
+  // BILLING SUMMARY
+  // ===========================================================================
+
+  // ---------------------------------------------------------------------------
+  // GET /billing/summary -- aggregate billing metrics for the overview dashboard
+  //
+  // Returns: totalOutstanding, collectedThisMonth, overdueCount, activePlansCount
+  // ---------------------------------------------------------------------------
+  fastify.get(
+    '/billing/summary',
+    async (request, reply) => {
+      const organizationId = request.organizationId
+
+      if (request.role !== 'admin') {
+        return reply.code(403).send({ error: 'Admin role required' })
+      }
+      if (!organizationId) {
+        return reply.code(401).send({ error: 'Missing organization context' })
+      }
+
+      // 1. Total outstanding = sum of pending + overdue invoice amounts
+      const { data: outstandingInvoices, error: outErr } = await fastify.supabase
+        .from('invoices')
+        .select('amount, status')
+        .eq('organization_id', organizationId)
+        .in('status', ['pending', 'overdue'])
+
+      if (outErr) {
+        fastify.log.error({ error: outErr }, 'Failed to load outstanding invoices')
+        return reply.code(500).send({ error: 'Failed to load billing summary' })
+      }
+
+      const totalOutstanding = (outstandingInvoices ?? []).reduce(
+        (sum, inv) => sum + Number(inv.amount),
+        0,
+      )
+
+      const overdueCount = (outstandingInvoices ?? []).filter(
+        (inv) => inv.status === 'overdue',
+      ).length
+
+      // 2. Collected this month = sum of payment amounts this calendar month
+      const now = new Date()
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
+      const { data: monthPayments, error: payErr } = await fastify.supabase
+        .from('payments')
+        .select('amount')
+        .eq('organization_id', organizationId)
+        .gte('paid_at', monthStart)
+
+      if (payErr) {
+        fastify.log.error({ error: payErr }, 'Failed to load monthly payments')
+        return reply.code(500).send({ error: 'Failed to load billing summary' })
+      }
+
+      const collectedThisMonth = (monthPayments ?? []).reduce(
+        (sum, p) => sum + Number(p.amount),
+        0,
+      )
+
+      // 3. Active tuition plans count
+      const { count: activePlansCount, error: planErr } = await fastify.supabase
+        .from('tuition_plans')
+        .select('id', { count: 'exact', head: true })
+        .eq('organization_id', organizationId)
+        .eq('active', true)
+
+      if (planErr) {
+        fastify.log.error({ error: planErr }, 'Failed to count active plans')
+        return reply.code(500).send({ error: 'Failed to load billing summary' })
+      }
+
+      return reply.code(200).send({
+        totalOutstanding: Math.round(totalOutstanding * 100) / 100,
+        collectedThisMonth: Math.round(collectedThisMonth * 100) / 100,
+        overdueCount,
+        activePlansCount: activePlansCount ?? 0,
+      })
+    },
+  )
+
   // ===========================================================================
   // TUITION PLANS
   // ===========================================================================
@@ -1039,6 +1123,173 @@ const billingRoutes: FastifyPluginAsync = async (fastify) => {
         page,
         limit,
       })
+    }
+  )
+
+  // ===========================================================================
+  // SUBSCRIPTIONS
+  // ===========================================================================
+
+  // ---------------------------------------------------------------------------
+  // POST /billing/subscribe -- create a Stripe Subscription for a family
+  //
+  // Looks up the family's active enrollments, finds active 'monthly' tuition
+  // plans for each enrolled class, creates Stripe Products + Prices if needed,
+  // then creates a Stripe Subscription with those price line items.
+  // ---------------------------------------------------------------------------
+  fastify.post<{ Body: SubscribeBody }>(
+    '/billing/subscribe',
+    async (request, reply) => {
+      const organizationId = request.organizationId
+      const { familyId } = request.body
+
+      if (request.role !== 'admin') {
+        return reply.code(403).send({ error: 'Admin role required' })
+      }
+      if (!organizationId) {
+        return reply.code(401).send({ error: 'Missing organization context' })
+      }
+
+      const stripe = getStripe()
+
+      // 1. Ensure Stripe Customer exists for this family
+      let stripeCustomerId: string
+      try {
+        stripeCustomerId = await ensureStripeCustomer(
+          fastify.supabase,
+          familyId,
+          organizationId,
+        )
+      } catch (err) {
+        fastify.log.error({ error: err, familyId }, 'Failed to ensure Stripe customer')
+        return reply.code(500).send({ error: 'Failed to create or find Stripe customer' })
+      }
+
+      // 2. Find all active enrollments for students in this family
+      const { data: enrollments, error: enrollErr } = await fastify.supabase
+        .from('enrollments')
+        .select(`
+          id,
+          class_id,
+          students!inner(id, family_id),
+          classes!inner(id, name)
+        `)
+        .eq('organization_id', organizationId)
+        .eq('status', 'active')
+        .eq('students.family_id', familyId)
+
+      if (enrollErr) {
+        fastify.log.error({ error: enrollErr }, 'Failed to look up enrollments for subscription')
+        return reply.code(500).send({ error: 'Failed to look up enrollments' })
+      }
+
+      if (!enrollments || enrollments.length === 0) {
+        return reply.code(400).send({ error: 'No active enrollments found for this family' })
+      }
+
+      // 3. Find active monthly tuition plans for enrolled classes
+      const classIds = [...new Set(enrollments.map((e) => e.class_id))]
+      const { data: tuitionPlans, error: planErr } = await fastify.supabase
+        .from('tuition_plans')
+        .select('id, class_id, amount, interval, stripe_price_id')
+        .eq('organization_id', organizationId)
+        .eq('active', true)
+        .eq('interval', 'monthly')
+        .in('class_id', classIds)
+
+      if (planErr) {
+        fastify.log.error({ error: planErr }, 'Failed to look up tuition plans for subscription')
+        return reply.code(500).send({ error: 'Failed to look up tuition plans' })
+      }
+
+      if (!tuitionPlans || tuitionPlans.length === 0) {
+        return reply.code(400).send({
+          error: 'No active monthly tuition plans found for enrolled classes',
+        })
+      }
+
+      // 4. For each tuition plan, ensure a Stripe Price exists
+      const subscriptionItems: Array<{ price: string }> = []
+
+      for (const plan of tuitionPlans) {
+        let stripePriceId = plan.stripe_price_id as string | null
+
+        if (!stripePriceId) {
+          // Find the class name for the Stripe Product
+          const classRow = enrollments.find((e) => e.class_id === plan.class_id)
+          const className = (classRow?.classes as { id: string; name: string } | undefined)?.name
+            ?? 'Dance Class'
+
+          // Create Stripe Product
+          const product = await stripe.products.create({
+            name: className,
+            metadata: {
+              tuition_plan_id: plan.id,
+              organization_id: organizationId,
+            },
+          })
+
+          // Create Stripe Price (amount in cents)
+          const price = await stripe.prices.create({
+            unit_amount: Math.round(Number(plan.amount) * 100),
+            currency: 'usd',
+            recurring: { interval: 'month' },
+            product: product.id,
+            metadata: {
+              tuition_plan_id: plan.id,
+              organization_id: organizationId,
+            },
+          })
+
+          stripePriceId = price.id
+
+          // Persist stripe_price_id on tuition_plans row
+          const { error: updateErr } = await fastify.supabase
+            .from('tuition_plans')
+            .update({ stripe_price_id: stripePriceId })
+            .eq('id', plan.id)
+            .eq('organization_id', organizationId)
+
+          if (updateErr) {
+            fastify.log.error(
+              { error: updateErr, planId: plan.id },
+              'Failed to save stripe_price_id on tuition plan',
+            )
+            // Non-fatal: the subscription can still be created. The price ID
+            // will be re-created on the next subscribe call if needed.
+          }
+        }
+
+        subscriptionItems.push({ price: stripePriceId })
+      }
+
+      // 5. Create Stripe Subscription
+      try {
+        const subscription = await stripe.subscriptions.create({
+          customer: stripeCustomerId,
+          items: subscriptionItems,
+          metadata: {
+            family_id: familyId,
+            organization_id: organizationId,
+          },
+        })
+
+        // In Stripe SDK v22, current_period_end lives on subscription items,
+        // not on the subscription itself.
+        const firstItem = subscription.items.data[0]
+        return reply.code(201).send({
+          subscriptionId: subscription.id,
+          status: subscription.status,
+          currentPeriodEnd: firstItem?.current_period_end ?? null,
+          items: subscription.items.data.map((item) => ({
+            priceId: item.price.id,
+            amount: item.price.unit_amount ? item.price.unit_amount / 100 : 0,
+          })),
+        })
+      } catch (stripeErr) {
+        fastify.log.error({ error: stripeErr, familyId }, 'Failed to create Stripe subscription')
+        return reply.code(500).send({ error: 'Failed to create Stripe subscription' })
+      }
     }
   )
 }
