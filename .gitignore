@@ -1,0 +1,29 @@
+# Environment files — never commit secrets
+server/.env
+client/.env.local
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+server/node_modules/
+client/node_modules/
+
+# Build output
+server/dist/
+client/dist/
+client/.vite/
+
+# Supabase local
+.supabase/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
