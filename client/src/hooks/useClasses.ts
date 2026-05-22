@@ -27,31 +27,23 @@ export interface ClassItem {
  * ClassDetail — shape returned by GET /classes/:id (detail endpoint).
  * Extends ClassItem with enrollment breakdown.
  */
+export interface EnrollmentRecord {
+  id: string
+  status: string
+  student_id: string
+  enrolled_at: string
+  students: {
+    id: string
+    first_name: string
+    last_name: string
+    active: boolean
+    photo_url: string | null
+  }
+}
+
 export interface ClassDetail extends ClassItem {
-  activeEnrollments: Array<{
-    id: string
-    status: string
-    student_id: string
-    students: {
-      id: string
-      first_name: string
-      last_name: string
-      active: boolean
-      photo_url: string | null
-    }
-  }>
-  waitlistEnrollments: Array<{
-    id: string
-    status: string
-    student_id: string
-    students: {
-      id: string
-      first_name: string
-      last_name: string
-      active: boolean
-      photo_url: string | null
-    }
-  }>
+  activeEnrollments: EnrollmentRecord[]
+  waitlistEnrollments: EnrollmentRecord[]
   waitlistCount: number
 }
 

@@ -169,6 +169,14 @@ export const router = createBrowserRouter([
           </LazyPage>
         ),
       },
+      {
+        path: 'classes/:id/edit',
+        element: (
+          <LazyPage>
+            <ClassForm />
+          </LazyPage>
+        ),
+      },
     ],
   },
 ])
