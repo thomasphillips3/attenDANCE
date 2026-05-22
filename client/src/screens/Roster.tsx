@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react'
 import { useRoster } from '../hooks/useRoster'
 import { useSessions } from '../hooks/useSessions'
 import { useAuth } from '../hooks/useAuth'
+import { useStore } from '../store'
 import { StudentRow } from '../components/StudentRow'
+import { ConfirmModal } from '../components/ConfirmModal'
+import { queryClient } from '../App'
 import { db } from '../lib/db'
 import type { QueuedAttendance } from '../lib/db'
 
@@ -38,6 +41,7 @@ export function Roster({ sessionId, onBack }: RosterProps) {
   const { students, isLoading, isOffline } = useRoster(sessionId)
   const { sessions } = useSessions()
   const { session: authSession } = useAuth()
+  const { recordSubmittedAt } = useStore()
 
   // Access token for PATCH /attendance API calls
   const token = authSession?.access_token
@@ -47,6 +51,10 @@ export function Roster({ sessionId, onBack }: RosterProps) {
 
   // Local optimistic status state — initialized from API data, updated immediately on tap
   const [localStatus, setLocalStatus] = useState<Record<string, string | null>>({})
+
+  // Modal + submit state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Initialize localStatus from API data when students load
   useEffect(() => {
@@ -70,6 +78,41 @@ export function Roster({ sessionId, onBack }: RosterProps) {
   ).length
 
   const absentCount = Object.values(localStatus).filter((s) => s === 'absent').length
+
+  // unmarkedCount: students with no status recorded yet (null)
+  const unmarkedCount = students.length - Object.values(localStatus).filter(Boolean).length
+
+  /**
+   * onConfirmSubmit — POST /sessions/:id/submit, then return to ClassList.
+   *
+   * On success:
+   * 1. Records submittedAt in Zustand store so ClassList can show the timestamp
+   * 2. Invalidates the sessions/today query so ClassList re-fetches and shows the checkmark
+   * 3. Closes the modal and calls onBack()
+   */
+  const onConfirmSubmit = async () => {
+    if (!token) return
+    setIsSubmitting(true)
+    try {
+      const res = await fetch(`${VITE_API_URL}/sessions/${sessionId}/submit`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (res.ok) {
+        const data = await res.json() as { sessionId: string; status: string; submittedAt: string }
+        // Store submittedAt so ClassList can display "Submitted at H:MM AM"
+        recordSubmittedAt(sessionId, data.submittedAt)
+        // Invalidate sessions query — ClassList will re-fetch and show the checkmark
+        await queryClient.invalidateQueries({ queryKey: ['sessions', 'today'] })
+        setIsModalOpen(false)
+        onBack()
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   /**
    * onMark — full optimistic marking flow (Plan 03).
@@ -265,7 +308,7 @@ export function Roster({ sessionId, onBack }: RosterProps) {
       )}
 
       {/* Student list */}
-      <main style={{ flex: 1, overflow: 'auto' }}>
+      <main style={{ flex: 1, overflow: 'auto', paddingBottom: 96 }}>
         {isLoading ? (
           <div
             style={{
@@ -312,6 +355,54 @@ export function Roster({ sessionId, onBack }: RosterProps) {
           ))
         )}
       </main>
+
+      {/* Sticky submit bar — full width, above the roster list */}
+      <div
+        style={{
+          position: 'sticky',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: '16px 24px',
+          background: 'var(--color-white)',
+          borderTop: '1px solid var(--color-line)',
+          flexShrink: 0,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+          disabled={isSubmitting}
+          style={{
+            width: '100%',
+            minHeight: 56,
+            background: isSubmitting ? 'var(--color-purple-deep)' : 'var(--color-purple)',
+            color: 'var(--color-white)',
+            border: 'none',
+            borderRadius: 14,
+            fontSize: 18,
+            fontFamily: 'var(--font-body)',
+            fontWeight: 700,
+            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          Submit Attendance
+        </button>
+      </div>
+
+      {/* Confirmation modal */}
+      <ConfirmModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={onConfirmSubmit}
+        presentCount={presentCount}
+        absentCount={absentCount}
+        unmarkedCount={unmarkedCount}
+        isSubmitting={isSubmitting}
+      />
     </div>
   )
 }

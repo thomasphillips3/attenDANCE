@@ -1,8 +1,11 @@
+import { format } from 'date-fns'
 import type { SessionSummary } from '../hooks/useSessions'
 
 interface ClassCardProps {
   session: SessionSummary
   onTap: (id: string) => void
+  /** ISO timestamp from POST /sessions/:id/submit response — set in local state when available */
+  submittedAt?: string
 }
 
 /**
@@ -17,7 +20,7 @@ interface ClassCardProps {
  *     scheduled + presentCount = 0 → grey dot (no badge text)
  * - Full card tappable, min-height 80px
  */
-export function ClassCard({ session, onTap }: ClassCardProps) {
+export function ClassCard({ session, onTap, submittedAt }: ClassCardProps) {
   // Format "HH:MM" 24h → "H:MM AM/PM" for display
   const formatTime = (time: string): string => {
     const [hourStr, minuteStr] = time.split(':')
@@ -87,13 +90,12 @@ export function ClassCard({ session, onTap }: ClassCardProps) {
           <div
             style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
-              gap: 6,
-              color: 'var(--color-green)',
-              fontSize: 14,
-              fontWeight: 700,
+              gap: 4,
             }}
           >
+            {/* Green circle checkmark — 24px per spec */}
             <div
               style={{
                 width: 24,
@@ -115,7 +117,19 @@ export function ClassCard({ session, onTap }: ClassCardProps) {
                 />
               </svg>
             </div>
-            <span>Done</span>
+            {/* Submitted time or fallback label — 13px --color-green per spec */}
+            <span
+              style={{
+                fontSize: 13,
+                color: 'var(--color-green)',
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {submittedAt
+                ? format(new Date(submittedAt), 'h:mm a')
+                : 'Submitted'}
+            </span>
           </div>
         ) : session.status === 'scheduled' && session.presentCount > 0 ? (
           <span

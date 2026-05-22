@@ -22,7 +22,7 @@ import { ClassCard } from '../components/ClassCard'
 export function ClassList() {
   const { user, logout } = useAuth()
   const { sessions, isLoading, isOffline } = useSessions()
-  const { setSelectedSessionId } = useStore()
+  const { setSelectedSessionId, submittedAtMap } = useStore()
 
   const today = new Date()
   const dateLabel = format(today, 'EEEE, MMMM d, yyyy')
@@ -223,6 +223,7 @@ export function ClassList() {
               key={session.id}
               session={session}
               onTap={(id) => setSelectedSessionId(id)}
+              submittedAt={submittedAtMap.get(session.id)}
             />
           ))
         )}

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../lib/supabase'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),
@@ -23,10 +24,12 @@ type LoginFormData = z.infer<typeof loginSchema>
 export function Login() {
   const { login } = useAuth()
   const [authError, setAuthError] = useState<string | null>(null)
+  const [forgotMessage, setForgotMessage] = useState<string | null>(null)
 
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -38,6 +41,27 @@ export function Login() {
     if (error) {
       setAuthError('Invalid email or password. Please try again.')
     }
+  }
+
+  /**
+   * onForgotPassword — AUTH-03 via Supabase built-in email delivery.
+   *
+   * Three-step handler from plan interfaces block:
+   * 1. Read email from react-hook-form getValues('email')
+   * 2. If empty: show "Enter your email address first." in --color-red
+   * 3. If present: call resetPasswordForEmail, then show "Check your email for a reset link."
+   *    regardless of Supabase response (avoids leaking whether email exists)
+   */
+  const onForgotPassword = async () => {
+    const email = getValues('email')
+    if (!email) {
+      setForgotMessage('__error__Enter your email address first.')
+      return
+    }
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    })
+    setForgotMessage('Check your email for a reset link.')
   }
 
   return (
@@ -247,6 +271,46 @@ export function Login() {
               'Sign in'
             )}
           </button>
+
+          {/* Forgot password — AUTH-03 via Supabase built-in email delivery */}
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: 14,
+              color: 'var(--color-ink-3)',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              padding: '8px 0',
+              fontFamily: 'var(--font-body)',
+              display: 'block',
+              width: '100%',
+              textAlign: 'center',
+              marginTop: 8,
+            }}
+          >
+            Forgot password?
+          </button>
+
+          {/* Inline feedback message for password reset */}
+          {forgotMessage && (
+            <p
+              style={{
+                fontSize: 14,
+                color: forgotMessage.startsWith('__error__')
+                  ? 'var(--color-red)'
+                  : 'var(--color-ink-3)',
+                margin: '4px 0 0 0',
+                textAlign: 'center',
+              }}
+            >
+              {forgotMessage.startsWith('__error__')
+                ? forgotMessage.slice('__error__'.length)
+                : forgotMessage}
+            </p>
+          )}
         </form>
       </div>
 
