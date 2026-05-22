@@ -14,6 +14,7 @@ import rfidCardsRoutes from './routes/rfid-cards.js'
 import enrollmentsRoutes from './routes/enrollments.js'
 import billingRoutes from './routes/billing.js'
 import webhooksRoutes from './routes/webhooks.js'
+import parentRoutes from './routes/parent.js'
 
 const fastify = Fastify({
   logger: true,
@@ -40,6 +41,7 @@ await fastify.register(rfidCardsRoutes)
 await fastify.register(enrollmentsRoutes)
 await fastify.register(billingRoutes)
 await fastify.register(webhooksRoutes)
+await fastify.register(parentRoutes)
 
 const port = Number(process.env.PORT) || 3001
 const host = '0.0.0.0'
