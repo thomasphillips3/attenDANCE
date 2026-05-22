@@ -169,17 +169,48 @@ export default function BillingPage() {
 
   return (
     <div style={{ fontFamily: 'var(--font-body)' }}>
-      {/* Page title */}
-      <h1
+      {/* Page title + View Invoices link */}
+      <div
         style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 32,
-          color: 'var(--color-ink)',
-          margin: '0 0 32px 0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 32,
+          flexWrap: 'wrap',
+          gap: 12,
         }}
       >
-        Billing
-      </h1>
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 32,
+            color: 'var(--color-ink)',
+            margin: 0,
+          }}
+        >
+          Billing
+        </h1>
+        <Link
+          to="/admin/billing/invoices"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 48,
+            padding: '0 24px',
+            background: 'var(--color-purple)',
+            color: 'var(--color-white)',
+            fontSize: 16,
+            fontWeight: 600,
+            fontFamily: 'var(--font-body)',
+            borderRadius: 'var(--radius-sm)',
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          View Invoices
+        </Link>
+      </div>
 
       {/* ================================================================= */}
       {/* TUITION PLANS SECTION                                             */}

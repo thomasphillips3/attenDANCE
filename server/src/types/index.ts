@@ -296,3 +296,49 @@ export const UpdateDiscountBody = Type.Object({
   active: Type.Optional(Type.Boolean()),
 })
 export type UpdateDiscountBody = Static<typeof UpdateDiscountBody>
+
+// ── Invoice schemas (Plan 03-02) ─────────────────────────────────────
+
+export const GenerateInvoiceBody = Type.Object({
+  familyId: Type.String({ format: 'uuid' }),
+})
+export type GenerateInvoiceBody = Static<typeof GenerateInvoiceBody>
+
+export const InvoiceListQuery = Type.Object({
+  familyId: Type.Optional(Type.String({ format: 'uuid' })),
+  status: Type.Optional(Type.Union([
+    Type.Literal('pending'),
+    Type.Literal('paid'),
+    Type.Literal('overdue'),
+    Type.Literal('waived'),
+  ])),
+  page: Type.Optional(Type.Number({ default: 1 })),
+  limit: Type.Optional(Type.Number({ default: 25, maximum: 100 })),
+})
+export type InvoiceListQuery = Static<typeof InvoiceListQuery>
+
+export const UpdateInvoiceBody = Type.Object({
+  status: Type.Literal('waived'),
+})
+export type UpdateInvoiceBody = Static<typeof UpdateInvoiceBody>
+
+// ── Payment schemas (Plan 03-02) ─────────────────────────────────────
+
+export const RecordPaymentBody = Type.Object({
+  invoiceId: Type.String({ format: 'uuid' }),
+  amount: Type.Number({ minimum: 0.01 }),
+  method: Type.Union([
+    Type.Literal('cash'),
+    Type.Literal('check'),
+  ]),
+  notes: Type.Optional(Type.String()),
+})
+export type RecordPaymentBody = Static<typeof RecordPaymentBody>
+
+export const PaymentListQuery = Type.Object({
+  invoiceId: Type.Optional(Type.String({ format: 'uuid' })),
+  familyId: Type.Optional(Type.String({ format: 'uuid' })),
+  page: Type.Optional(Type.Number({ default: 1 })),
+  limit: Type.Optional(Type.Number({ default: 25, maximum: 100 })),
+})
+export type PaymentListQuery = Static<typeof PaymentListQuery>
