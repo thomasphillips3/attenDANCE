@@ -242,3 +242,57 @@ export const TransferBody = Type.Object({
   toClassId: Type.String({ format: 'uuid' }),
 })
 export type TransferBody = Static<typeof TransferBody>
+
+// ── Tuition Plan schemas (Plan 03-01) ────────────────────────────────
+
+export const CreateTuitionPlanBody = Type.Object({
+  classId: Type.Optional(Type.String({ format: 'uuid' })),
+  amount: Type.Number({ minimum: 0 }),
+  interval: Type.Union([
+    Type.Literal('monthly'),
+    Type.Literal('per_session'),
+    Type.Literal('seasonal'),
+  ]),
+})
+export type CreateTuitionPlanBody = Static<typeof CreateTuitionPlanBody>
+
+export const UpdateTuitionPlanBody = Type.Object({
+  classId: Type.Optional(Type.String({ format: 'uuid' })),
+  amount: Type.Optional(Type.Number({ minimum: 0 })),
+  interval: Type.Optional(Type.Union([
+    Type.Literal('monthly'),
+    Type.Literal('per_session'),
+    Type.Literal('seasonal'),
+  ])),
+  active: Type.Optional(Type.Boolean()),
+})
+export type UpdateTuitionPlanBody = Static<typeof UpdateTuitionPlanBody>
+
+// ── Discount schemas (Plan 03-01) ────────────────────────────────────
+
+export const CreateDiscountBody = Type.Object({
+  familyId: Type.Optional(Type.String({ format: 'uuid' })),
+  classId: Type.Optional(Type.String({ format: 'uuid' })),
+  type: Type.Union([
+    Type.Literal('sibling'),
+    Type.Literal('scholarship'),
+    Type.Literal('staff'),
+  ]),
+  amount: Type.Optional(Type.Number({ minimum: 0 })),
+  percent: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
+})
+export type CreateDiscountBody = Static<typeof CreateDiscountBody>
+
+export const UpdateDiscountBody = Type.Object({
+  familyId: Type.Optional(Type.String({ format: 'uuid' })),
+  classId: Type.Optional(Type.String({ format: 'uuid' })),
+  type: Type.Optional(Type.Union([
+    Type.Literal('sibling'),
+    Type.Literal('scholarship'),
+    Type.Literal('staff'),
+  ])),
+  amount: Type.Optional(Type.Number({ minimum: 0 })),
+  percent: Type.Optional(Type.Number({ minimum: 0, maximum: 100 })),
+  active: Type.Optional(Type.Boolean()),
+})
+export type UpdateDiscountBody = Static<typeof UpdateDiscountBody>
