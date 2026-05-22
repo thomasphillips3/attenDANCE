@@ -8,6 +8,9 @@ import attendanceRoutes from './routes/attendance.js'
 import rfidRoutes from './routes/rfid.js'
 import authRoutes from './routes/auth.js'
 import classesRoutes from './routes/classes.js'
+import studentsRoutes from './routes/students.js'
+import familiesRoutes from './routes/families.js'
+import rfidCardsRoutes from './routes/rfid-cards.js'
 
 const fastify = Fastify({
   logger: true,
@@ -28,6 +31,9 @@ await fastify.register(attendanceRoutes)
 await fastify.register(rfidRoutes)
 await fastify.register(authRoutes)
 await fastify.register(classesRoutes)
+await fastify.register(studentsRoutes)
+await fastify.register(familiesRoutes)
+await fastify.register(rfidCardsRoutes)
 
 const port = Number(process.env.PORT) || 3001
 const host = '0.0.0.0'
