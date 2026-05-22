@@ -17,6 +17,7 @@ const BillingPage = lazy(() => import('./screens/admin/BillingPage'))
 const TuitionPlanForm = lazy(() => import('./screens/admin/TuitionPlanForm'))
 const InvoicesPage = lazy(() => import('./screens/admin/InvoicesPage'))
 const FamilyBilling = lazy(() => import('./screens/admin/FamilyBilling'))
+const NotificationsPage = lazy(() => import('./screens/admin/NotificationsPage'))
 
 // Lazy-loaded front desk screen (Roster is heavier than ClassList)
 const Roster = lazy(() => import('./screens/Roster'))
@@ -223,6 +224,14 @@ export const router = createBrowserRouter([
         element: (
           <LazyPage>
             <TuitionPlanForm />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'communications',
+        element: (
+          <LazyPage>
+            <NotificationsPage />
           </LazyPage>
         ),
       },

@@ -157,6 +157,29 @@ export default function AdminSidebar() {
           Billing
         </NavLink>
 
+        {/* Communications -- active */}
+        <NavLink
+          to="/admin/communications"
+          style={({ isActive }) => ({
+            minHeight: 56,
+            padding: '12px 16px',
+            fontSize: 16,
+            fontFamily: 'var(--font-body)',
+            fontWeight: isActive ? 700 : 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            textDecoration: 'none',
+            color: isActive ? 'var(--color-purple)' : 'var(--color-ink-2)',
+            background: isActive ? 'var(--color-purple-tint)' : 'transparent',
+            borderLeft: isActive
+              ? '3px solid var(--color-purple)'
+              : '3px solid transparent',
+          })}
+        >
+          Communications
+        </NavLink>
+
         {/* Attendance -- grayed */}
         <span
           style={{
