@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import FrontDeskLayout from './layouts/FrontDeskLayout'
 import AdminLayout from './layouts/AdminLayout'
+import ParentLayout from './layouts/ParentLayout'
 import { Login } from './screens/Login'
 import { ClassList } from './screens/ClassList'
 
@@ -21,6 +22,13 @@ const NotificationsPage = lazy(() => import('./screens/admin/NotificationsPage')
 
 // Lazy-loaded front desk screen (Roster is heavier than ClassList)
 const Roster = lazy(() => import('./screens/Roster'))
+
+// Lazy-loaded parent portal screens (Plan 04-03)
+const ParentLogin = lazy(() => import('./screens/parent/ParentLogin'))
+const ParentDashboard = lazy(() => import('./screens/parent/ParentDashboard'))
+const ParentClasses = lazy(() => import('./screens/parent/ParentClasses'))
+const ParentAttendance = lazy(() => import('./screens/parent/ParentAttendance'))
+const ParentProfile = lazy(() => import('./screens/parent/ParentProfile'))
 
 /**
  * LazyPage -- Suspense wrapper with a loading spinner for lazy-loaded routes.
@@ -81,6 +89,12 @@ function LazyPage({ children }: { children: React.ReactNode }) {
  *   billing/invoices  -> InvoicesPage (lazy)
  *   billing/plans/new -> TuitionPlanForm (lazy)
  *   billing/plans/:id -> TuitionPlanForm (lazy, edit mode)
+ * /parent/login       -> ParentLogin (no layout, magic link)
+ * /parent             -> ParentLayout (auth + parent role gated)
+ *   index             -> ParentDashboard (lazy)
+ *   classes           -> ParentClasses (lazy)
+ *   attendance        -> ParentAttendance (lazy)
+ *   profile           -> ParentProfile (lazy)
  */
 export const router = createBrowserRouter([
   {
@@ -232,6 +246,52 @@ export const router = createBrowserRouter([
         element: (
           <LazyPage>
             <NotificationsPage />
+          </LazyPage>
+        ),
+      },
+    ],
+  },
+  {
+    path: '/parent/login',
+    element: (
+      <LazyPage>
+        <ParentLogin />
+      </LazyPage>
+    ),
+  },
+  {
+    path: '/parent',
+    element: <ParentLayout />,
+    children: [
+      {
+        index: true,
+        element: (
+          <LazyPage>
+            <ParentDashboard />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'classes',
+        element: (
+          <LazyPage>
+            <ParentClasses />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'attendance',
+        element: (
+          <LazyPage>
+            <ParentAttendance />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'profile',
+        element: (
+          <LazyPage>
+            <ParentProfile />
           </LazyPage>
         ),
       },

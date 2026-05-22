@@ -22,6 +22,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     // Persist session in localStorage so iPad remembers login across refreshes (AUTH-02)
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
+    // detectSessionInUrl must be true for magic link auth (parent portal).
+    // When a parent clicks the magic link, Supabase appends auth tokens to
+    // the URL hash — the client must detect and exchange them for a session.
+    detectSessionInUrl: true,
   },
 })
