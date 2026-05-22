@@ -17,13 +17,13 @@
 
 - [x] **ATTN-01**: Front desk sees today's classes with done/pending/in-progress status
 - [x] **ATTN-02**: Front desk can tap a class to open its roster
-- [ ] **ATTN-03**: Front desk can mark each student present, absent, late, or excused with 56px+ tap targets
+- [x] **ATTN-03**: Front desk can mark each student present, absent, late, or excused with 56px+ tap targets
 - [x] **ATTN-04**: Front desk sees present/absent counts update in real time as they mark
 - [ ] **ATTN-05**: Front desk can submit attendance with a confirmation modal showing counts
 - [ ] **ATTN-06**: Submitted classes show checkmark and timestamp on the home screen
-- [ ] **ATTN-07**: Attendance works offline via IndexedDB queue and syncs on reconnect (foreground sync)
+- [x] **ATTN-07**: Attendance works offline via IndexedDB queue and syncs on reconnect (foreground sync)
 - [ ] **ATTN-08**: System exposes POST /rfid/checkin endpoint that accepts card_uid and returns student name
-- [ ] **ATTN-09**: Attendance records track marked_by source (manual or rfid)
+- [x] **ATTN-09**: Attendance records track marked_by source (manual or rfid)
 
 ### Students & Families
 
@@ -141,13 +141,13 @@
 | AUTH-05 | Phase 1 | Pending |
 | ATTN-01 | Phase 1 | Complete |
 | ATTN-02 | Phase 1 | Complete |
-| ATTN-03 | Phase 1 | Pending |
+| ATTN-03 | Phase 1 | Complete |
 | ATTN-04 | Phase 1 | Complete |
 | ATTN-05 | Phase 1 | Pending |
 | ATTN-06 | Phase 1 | Pending |
-| ATTN-07 | Phase 1 | Pending |
+| ATTN-07 | Phase 1 | Complete |
 | ATTN-08 | Phase 1 | Pending |
-| ATTN-09 | Phase 1 | Pending |
+| ATTN-09 | Phase 1 | Complete |
 | STUD-01 | Phase 2 | Pending |
 | STUD-02 | Phase 2 | Pending |
 | STUD-03 | Phase 2 | Pending |
