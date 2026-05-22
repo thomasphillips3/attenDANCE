@@ -77,3 +77,35 @@ export const AttendanceMarkResponse = Type.Object({
   message: Type.Optional(Type.String()),
 })
 export type AttendanceMarkResponse = Static<typeof AttendanceMarkResponse>
+
+// TypeBox schemas for POST /sessions/:id/submit — mark session completed
+export const SubmitResponse = Type.Object({
+  sessionId: Type.String(),
+  status: Type.Literal('completed'),
+  submittedAt: Type.String(),
+})
+export type SubmitResponse = Static<typeof SubmitResponse>
+
+// TypeBox schemas for POST /rfid/checkin — ATTN-08 stub (Phase 2 placeholder)
+export const RfidCheckinBody = Type.Object({
+  card_uid: Type.String(),
+  device_id: Type.Optional(Type.String()),
+})
+export type RfidCheckinBody = Static<typeof RfidCheckinBody>
+
+// TypeBox schemas for POST /auth/invite — admin-only staff invitation
+export const InviteBody = Type.Object({
+  email: Type.String(),
+  role: Type.Union([
+    Type.Literal('admin'),
+    Type.Literal('instructor'),
+    Type.Literal('front_desk'),
+  ]),
+})
+export type InviteBody = Static<typeof InviteBody>
+
+export const InviteResponse = Type.Object({
+  message: Type.String(),
+  email: Type.String(),
+})
+export type InviteResponse = Static<typeof InviteResponse>

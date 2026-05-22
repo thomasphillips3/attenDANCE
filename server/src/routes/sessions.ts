@@ -15,6 +15,64 @@ import type { FastifyPluginAsync } from 'fastify'
  * SQL from Plan 02 interfaces block as a SECURITY DEFINER Postgres function.
  */
 const sessionsRoutes: FastifyPluginAsync = async (fastify) => {
+  /**
+   * POST /sessions/:id/submit — mark a class session as completed.
+   *
+   * Five-step contract (T-04-02 mitigation):
+   * 1. SELECT organization_id FROM class_sessions WHERE id = params.id
+   * 2. If no row or org mismatch: return 403
+   * 3. UPDATE class_sessions SET status = 'completed', updated_at = now()
+   * 4. Return 200 { sessionId, status: 'completed', submittedAt }
+   * 5. DB error: return 500
+   *
+   * submittedAt is computed at response time — no column added to schema.
+   * Repeated calls are idempotent (UPDATE on already-completed is a no-op).
+   */
+  fastify.post<{ Params: { id: string } }>('/sessions/:id/submit', async (request, reply) => {
+    const organizationId = request.organizationId
+    const sessionId = request.params.id
+
+    if (!organizationId) {
+      return reply.code(401).send({ error: 'Missing organization context' })
+    }
+
+    // Step 1: verify session exists and belongs to this organization (T-04-02)
+    const { data: sessionRow, error: selectError } = await fastify.supabase
+      .from('class_sessions')
+      .select('id, organization_id')
+      .eq('id', sessionId)
+      .maybeSingle()
+
+    if (selectError) {
+      fastify.log.error({ error: selectError }, 'Failed to verify session for submit')
+      return reply.code(500).send({ error: 'Failed to submit attendance' })
+    }
+
+    // Step 2: missing or org mismatch → 403
+    if (!sessionRow || sessionRow.organization_id !== organizationId) {
+      return reply.code(403).send({ error: 'Forbidden' })
+    }
+
+    // Step 3: mark the session as completed
+    const { error: updateError } = await fastify.supabase
+      .from('class_sessions')
+      .update({ status: 'completed', updated_at: new Date().toISOString() })
+      .eq('id', sessionId)
+      .eq('organization_id', organizationId)
+
+    if (updateError) {
+      fastify.log.error({ error: updateError }, 'Failed to mark session completed')
+      return reply.code(500).send({ error: 'Failed to submit attendance' })
+    }
+
+    // Step 4: return success with submittedAt computed at response time
+    return reply.code(200).send({
+      sessionId,
+      status: 'completed',
+      submittedAt: new Date().toISOString(),
+    })
+  })
+
   fastify.get('/sessions/today', async (request, reply) => {
     const organizationId = request.organizationId
 
