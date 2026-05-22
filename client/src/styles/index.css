@@ -1,0 +1,82 @@
+/* Google Fonts — must precede @import 'tailwindcss' to satisfy CSS @import ordering rules */
+/* Atkinson Hyperlegible — accessibility body font */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+/* DM Serif Display — artistic display font */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+
+@import 'tailwindcss';
+
+/* =============================================================================
+   Tailwind v4 @theme block
+   Translates tokens.css custom properties to Tailwind v4 design token format.
+   Source of truth: /tokens.css in repo root.
+   ============================================================================= */
+@theme {
+  /* Brand colors */
+  --color-purple: #8f2db5;
+  --color-purple-deep: #6b228a;
+  --color-purple-tint: #f0e1f6;
+  --color-purple-tint-strong: #d9b8e8;
+  --color-purple-ink: #3d1252;
+
+  /* Surfaces & ink */
+  --color-white: #ffffff;
+  --color-cream: #fbf8f4;
+  --color-paper: #f7f3ee;
+  --color-line: #ece6dd;
+  --color-line-strong: #d9d2c5;
+  --color-ink: #1a1a1a;
+  --color-ink-2: #4a4a4a;
+  --color-ink-3: #7a7670;
+
+  /* Accent — champagne gold */
+  --color-gold: #d4a84b;
+  --color-gold-soft: #f3e3b8;
+  --color-gold-ink: #6e521a;
+
+  /* Semantic */
+  --color-green: #16a34a;
+  --color-green-deep: #0f7a37;
+  --color-green-soft: #dcfce7;
+  --color-red: #dc2626;
+  --color-red-deep: #a81d1d;
+  --color-red-soft: #fee2e2;
+
+  /* Typography */
+  --font-display: 'DM Serif Display', 'Bodoni Moda', Georgia, serif;
+  --font-body: 'Atkinson Hyperlegible', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Border radius */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 0 rgba(0,0,0,0.04), 0 2px 8px rgba(40,20,60,0.06);
+  --shadow-card-hover: 0 6px 24px rgba(143,45,181,0.18);
+  --shadow-modal: 0 30px 80px rgba(40,20,60,0.32);
+}
+
+/* =============================================================================
+   Global base styles
+   ============================================================================= */
+
+html {
+  font-size: 18px; /* Accessibility: minimum 18px body text (non-negotiable) */
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.35;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
