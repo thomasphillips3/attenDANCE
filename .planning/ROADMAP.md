@@ -51,7 +51,14 @@ Plans:
   2. Admin can search and filter students by name, class, and active status
   3. Admin can create a class with day, time, instructor, room, capacity, and age range, and view all classes on a visual weekly calendar
   4. Admin can enroll a student in a class; the system enforces the capacity limit and places them on the waitlist when full, then auto-promotes when a spot opens
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [x] 02-01-PLAN.md — Router + Admin shell + SQL migrations (enrollment functions + storage bucket)
+- [ ] 02-02-PLAN.md — Family + student CRUD with photo upload, search/filter, RFID assignment
+- [ ] 02-03-PLAN.md — Class CRUD with weekly calendar and instructor picker
+- [ ] 02-04-PLAN.md — Enrollment, waitlist, transfer + human verification checkpoint
+
 **UI hint**: yes
 
 ### Phase 3: Billing
@@ -102,7 +109,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Attendance MVP | 3/4 | In Progress|  |
-| 2. Studio Management | 0/TBD | Not started | - |
+| 2. Studio Management | 1/4 | In Progress|  |
 | 3. Billing | 0/TBD | Not started | - |
 | 4. Communications and Parent Portal | 0/TBD | Not started | - |
 | 5. Admin Dashboard and Operations | 0/TBD | Not started | - |

@@ -27,9 +27,9 @@
 
 ### Students & Families
 
-- [ ] **STUD-01**: Admin can create, edit, and deactivate student records (name, DOB, photo, medical notes, skill level)
+- [x] **STUD-01**: Admin can create, edit, and deactivate student records (name, DOB, photo, medical notes, skill level)
 - [ ] **STUD-02**: Admin can create and edit family records (guardians, email, phone, emergency contact)
-- [ ] **STUD-03**: Students belong to a family; families can have multiple students
+- [x] **STUD-03**: Students belong to a family; families can have multiple students
 - [ ] **STUD-04**: Admin can assign RFID card UID to a student for future hardware integration
 - [ ] **STUD-05**: Admin can search and filter students by name, class, active status
 
@@ -37,10 +37,10 @@
 
 - [ ] **CLAS-01**: Admin can create and edit classes (name, type, instructor, day/time, duration, room, capacity, age range, level)
 - [ ] **CLAS-02**: Admin can view a visual weekly calendar of all classes
-- [ ] **CLAS-03**: Admin can enroll students in classes
-- [ ] **CLAS-04**: System enforces capacity limits and places students on waitlist when full
-- [ ] **CLAS-05**: Admin can drop or transfer students between classes
-- [ ] **CLAS-06**: System auto-promotes from waitlist when a spot opens
+- [x] **CLAS-03**: Admin can enroll students in classes
+- [x] **CLAS-04**: System enforces capacity limits and places students on waitlist when full
+- [x] **CLAS-05**: Admin can drop or transfer students between classes
+- [x] **CLAS-06**: System auto-promotes from waitlist when a spot opens
 
 ### Billing
 
@@ -148,17 +148,17 @@
 | ATTN-07 | Phase 1 | Complete |
 | ATTN-08 | Phase 1 | Pending |
 | ATTN-09 | Phase 1 | Complete |
-| STUD-01 | Phase 2 | Pending |
+| STUD-01 | Phase 2 | Complete |
 | STUD-02 | Phase 2 | Pending |
-| STUD-03 | Phase 2 | Pending |
+| STUD-03 | Phase 2 | Complete |
 | STUD-04 | Phase 2 | Pending |
 | STUD-05 | Phase 2 | Pending |
 | CLAS-01 | Phase 2 | Pending |
 | CLAS-02 | Phase 2 | Pending |
-| CLAS-03 | Phase 2 | Pending |
-| CLAS-04 | Phase 2 | Pending |
-| CLAS-05 | Phase 2 | Pending |
-| CLAS-06 | Phase 2 | Pending |
+| CLAS-03 | Phase 2 | Complete |
+| CLAS-04 | Phase 2 | Complete |
+| CLAS-05 | Phase 2 | Complete |
+| CLAS-06 | Phase 2 | Complete |
 | BILL-01 | Phase 3 | Pending |
 | BILL-02 | Phase 3 | Pending |
 | BILL-03 | Phase 3 | Pending |

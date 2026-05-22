@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Plan 01-01 complete. Walking skeleton committed (bde042b, 09a9247, 9eed29d). Manual Supabase setup steps required before Plan 01-02.
-last_updated: "2026-05-22T07:35:54.040Z"
+last_updated: "2026-05-22T22:03:10.989Z"
 last_activity: 2026-05-22
 progress:
   total_phases: 5
-  completed_phases: 0
-  total_plans: 4
-  completed_plans: 3
-  percent: 75
+  completed_phases: 1
+  total_plans: 8
+  completed_plans: 5
+  percent: 63
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-21)
 
 **Core value:** Mrs. Goodman at the front desk can take attendance for a full class in under 30 seconds on an iPad without asking for help.
-**Current focus:** Phase 1 — Attendance MVP
+**Current focus:** Phase 2 — Studio Management
 
 ## Current Position
 
-Phase: 1 of 5 (Attendance MVP)
-Plan: 3 of 4 in current phase
+Phase: 2 of 5 (Studio Management)
+Plan: 1 of 4 in current phase
 Status: Ready to execute
 Last activity: 2026-05-22
 
-Progress: [████████░░] 75%
+Progress: [██████░░░░] 63%
 
 ## Performance Metrics
 
@@ -69,6 +69,8 @@ Recent decisions affecting current work:
 - RLS policies MUST use subselect pattern `(SELECT (auth.jwt() -> 'app_metadata' ->> 'organization_id')::uuid)` — bare `auth.jwt()` outside a subselect causes per-row re-evaluation (performance) and policy bypass risk.
 - tsx watch --env-file flag order: `tsx watch --env-file=.env src/index.ts` — env-file flag must follow the `watch` subcommand.
 - Tailwind v4 Google Fonts @import must precede `@import 'tailwindcss'` to satisfy CSS @import ordering rules.
+- [Phase ?]: Roster uses default export for React.lazy compatibility; all hooks called before conditional guard return
+- [Phase ?]: Storage RLS uses subselect pattern for auth.jwt() organization_id; path convention {org_id}/{student_id}/{file} for org scoping
 
 ### Pending Todos
 
@@ -86,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-22T07:35:54.033Z
+Last session: 2026-05-22T22:02:59.325Z
 Stopped at: Plan 01-01 complete. Walking skeleton committed (bde042b, 09a9247, 9eed29d). Manual Supabase setup steps required before Plan 01-02.
 Resume file: None
