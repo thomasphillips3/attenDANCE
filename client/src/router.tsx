@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import FrontDeskLayout from './layouts/FrontDeskLayout'
 import AdminLayout from './layouts/AdminLayout'
 import ParentLayout from './layouts/ParentLayout'
+import InstructorLayout from './layouts/InstructorLayout'
 import { Login } from './screens/Login'
 import { ClassList } from './screens/ClassList'
 
@@ -24,6 +25,11 @@ const ReportsPage = lazy(() => import('./screens/admin/ReportsPage'))
 
 // Lazy-loaded front desk screen (Roster is heavier than ClassList)
 const Roster = lazy(() => import('./screens/Roster'))
+
+// Lazy-loaded instructor portal screens (Plan 05-03)
+const InstructorDashboard = lazy(() => import('./screens/staff/InstructorDashboard'))
+const InstructorSchedule = lazy(() => import('./screens/staff/InstructorSchedule'))
+const InstructorHours = lazy(() => import('./screens/staff/InstructorHours'))
 
 // Lazy-loaded parent portal screens (Plan 04-03)
 const ParentLogin = lazy(() => import('./screens/parent/ParentLogin'))
@@ -102,6 +108,10 @@ function LazyPage({ children }: { children: React.ReactNode }) {
  *   attendance        -> ParentAttendance (lazy)
  *   invoices          -> ParentInvoices (lazy, Stripe Elements payment)
  *   profile           -> ParentProfile (lazy)
+ * /instructor          -> InstructorLayout (auth + instructor role gated)
+ *   index             -> InstructorDashboard (lazy, today's classes)
+ *   schedule          -> InstructorSchedule (lazy, weekly view)
+ *   hours             -> InstructorHours (lazy, hour logging + history)
  */
 export const router = createBrowserRouter([
   {
@@ -323,6 +333,36 @@ export const router = createBrowserRouter([
         element: (
           <LazyPage>
             <ParentProfile />
+          </LazyPage>
+        ),
+      },
+    ],
+  },
+  {
+    path: '/instructor',
+    element: <InstructorLayout />,
+    children: [
+      {
+        index: true,
+        element: (
+          <LazyPage>
+            <InstructorDashboard />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'schedule',
+        element: (
+          <LazyPage>
+            <InstructorSchedule />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'hours',
+        element: (
+          <LazyPage>
+            <InstructorHours />
           </LazyPage>
         ),
       },
