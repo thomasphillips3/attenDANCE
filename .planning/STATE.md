@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-05-22T22:59:00.000Z"
-last_activity: 2026-05-22
+stopped_at: Completed 05-02 (Reports)
+last_updated: "2026-05-23T01:54:00.000Z"
+last_activity: 2026-05-23
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 12
-  completed_plans: 9
-  percent: 75
+  completed_phases: 4
+  total_plans: 16
+  completed_plans: 16
+  percent: 100
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-21)
 
 **Core value:** Mrs. Goodman at the front desk can take attendance for a full class in under 30 seconds on an iPad without asking for help.
-**Current focus:** Phase 3 — Billing
+**Current focus:** Phase 5 — Admin Dashboard and Operations
 
 ## Current Position
 
-Phase: 3 of 5 (Billing)
+Phase: 5 of 5 (Admin Dashboard and Operations)
 Plan: 2 of 4 in current phase
 Status: Executing
-Last activity: 2026-05-22
+Last activity: 2026-05-23
 
 Progress: [███████░░░] 75%
 
@@ -57,6 +57,14 @@ Progress: [███████░░░] 75%
 | Phase 02-studio-management P02 | 16min | 2 tasks | 14 files |
 | Phase 02-studio-management P04 | 7min | 2 tasks | 9 files |
 | Phase 03-billing P01 | 10min | 3 tasks | 10 files |
+| Phase 03-billing P02 | 9min | 3 tasks | 9 files |
+| Phase 03-billing P03 | 6min | 3 tasks | 5 files |
+| Phase 03-billing P04 | 7min | 3 tasks | 5 files |
+| Phase 04-communications P01 | 11min | 3 tasks | 6 files |
+| Phase 04-communications P03 | 18min | 3 tasks | 12 files |
+| Phase 04-communications P02 | 7min | 3 tasks | 8 files |
+| Phase 04-communications P04 | 9min | 3 tasks | 6 files |
+| Phase 05-admin-dashboard P02 | 6min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -84,10 +92,23 @@ Recent decisions affecting current work:
 - [Phase ?]: RPC pattern for enrollment: check data.error for app-level errors vs Supabase error for transport/auth errors
 - [Phase 3]: Soft-delete pattern for billing records (active=false) preserves audit history for tuition plans and discounts
 - [Phase 3]: Inline discount creation form on BillingPage; separate TuitionPlanForm page for create/edit
+- [Phase 3]: Webhook route skips auth via URL prefix check in auth.ts; raw body parser scoped to webhook plugin only
+- [Phase 3]: Stripe SDK v22 type changes: payment_intent not on Invoice type, current_period_end moved to SubscriptionItem
+- [Phase 3]: Stripe Smart Retries handle payment retry logic; webhook handler tracks state transitions only
+- [Phase 3]: GET /billing/summary aggregates outstanding/collected/overdue for billing overview cards
+- [Phase 4]: Parents are NOT staff — parent auth uses families.parent_user_id + updated custom_access_token_hook to inject role='parent', organization_id, family_id into JWT
+- [Phase 4]: Magic link auth for parents via Supabase signInWithOtp — no password needed
+- [Phase 4]: Notification service: fire-and-forget pattern, lazy-init SDK clients, catch errors and log to notification_log
+- [Phase 4]: Email templates are plain HTML (no React Email dependency) with studio branding
+- [Phase 4]: SMS requires A2P 10DLC registration before production use (brand + campaign, ~$14, 1-2 week approval)
+- [Phase 4]: Stripe Elements (embedded) for parent invoice payment — PaymentIntent created server-side, clientSecret returned to frontend
+- [Phase 4]: Broadcast endpoint supports channel=email|sms|both with optional classIds filter for targeted sends
+- [Phase 5]: CSV export uses client-side Blob creation from API rows array (no server-side CSV generation)
+- [Phase 5]: Attendance rate = (present + late) / total records, consistent with dashboard KPI definition
 
 ### Pending Todos
 
-None yet.
+- Start Twilio A2P 10DLC registration (brand + campaign) before deploying SMS to production
 
 ### Blockers/Concerns
 
@@ -101,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-22T22:59:00.000Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-05-23T01:54:00.000Z
+Stopped at: Completed 05-02 (Reports — Enrollment, Revenue, Attendance + CSV Export)
 Resume file: None
