@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from './useAuth'
 
 /**
@@ -62,5 +62,55 @@ export function useNotifications(filters?: {
       return res.json()
     },
     enabled: !!token,
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Broadcast
+// ---------------------------------------------------------------------------
+
+export interface BroadcastPayload {
+  channel: 'email' | 'sms' | 'both'
+  classIds?: string[]
+  subject?: string
+  message: string
+}
+
+export interface BroadcastResult {
+  sent: number
+  families: number
+  message: string
+}
+
+/**
+ * useBroadcast -- mutation to send a broadcast message to families.
+ * Invalidates the notifications list on success so the table refreshes.
+ */
+export function useBroadcast() {
+  const { session } = useAuth()
+  const token = session?.access_token
+  const queryClient = useQueryClient()
+
+  return useMutation<BroadcastResult, Error, BroadcastPayload>({
+    mutationFn: async (payload) => {
+      const res = await fetch(`${API_URL}/notifications/broadcast`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Broadcast failed' }))
+        throw new Error(err.error || 'Broadcast failed')
+      }
+
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
   })
 }
