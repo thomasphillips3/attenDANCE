@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { path: '/parent', label: 'Home', exact: true },
   { path: '/parent/classes', label: 'Classes' },
   { path: '/parent/attendance', label: 'Attendance' },
+  { path: '/parent/invoices', label: 'Invoices' },
   { path: '/parent/profile', label: 'Profile' },
 ]
 

@@ -90,6 +90,21 @@ export interface ParentProfile {
   address: string | null
 }
 
+export interface ParentInvoice {
+  id: string
+  amount: number
+  status: 'pending' | 'paid' | 'overdue' | 'waived'
+  due_date: string
+  line_items: unknown
+  created_at: string
+}
+
+export interface PayInvoiceResponse {
+  clientSecret: string
+  amount: number
+  invoiceId: string
+}
+
 // ── Hooks ───────────────────────────────────────────────────────────
 
 /**
@@ -217,6 +232,62 @@ export function useUpdateParentProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parent', 'profile'] })
       queryClient.invalidateQueries({ queryKey: ['parent', 'dashboard'] })
+    },
+  })
+}
+
+// ── Invoice hooks (Plan 04-04) ──────────────────────────────────────
+
+/**
+ * useParentInvoices -- fetches all invoices for the parent's family.
+ */
+export function useParentInvoices() {
+  const { session } = useAuth()
+  const token = session?.access_token
+
+  return useQuery<{ invoices: ParentInvoice[] }>({
+    queryKey: ['parent', 'invoices'],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/parent/invoices`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) {
+        throw new Error(`Failed to fetch invoices: ${res.status}`)
+      }
+      return res.json()
+    },
+    enabled: !!token,
+  })
+}
+
+/**
+ * usePayInvoice -- mutation to create a PaymentIntent for an invoice.
+ *
+ * Returns clientSecret for Stripe Elements and invalidates invoice list
+ * on success (status will update via webhook).
+ */
+export function usePayInvoice() {
+  const { session } = useAuth()
+  const token = session?.access_token
+  const queryClient = useQueryClient()
+
+  return useMutation<PayInvoiceResponse, Error, string>({
+    mutationFn: async (invoiceId: string) => {
+      const res = await fetch(`${API_URL}/parent/invoices/${invoiceId}/pay`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Failed to start payment' }))
+        throw new Error(err.error || 'Failed to start payment')
+      }
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['parent', 'invoices'] })
     },
   })
 }

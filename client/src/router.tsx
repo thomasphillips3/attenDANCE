@@ -29,6 +29,7 @@ const ParentDashboard = lazy(() => import('./screens/parent/ParentDashboard'))
 const ParentClasses = lazy(() => import('./screens/parent/ParentClasses'))
 const ParentAttendance = lazy(() => import('./screens/parent/ParentAttendance'))
 const ParentProfile = lazy(() => import('./screens/parent/ParentProfile'))
+const ParentInvoices = lazy(() => import('./screens/parent/ParentInvoices'))
 
 /**
  * LazyPage -- Suspense wrapper with a loading spinner for lazy-loaded routes.
@@ -94,6 +95,7 @@ function LazyPage({ children }: { children: React.ReactNode }) {
  *   index             -> ParentDashboard (lazy)
  *   classes           -> ParentClasses (lazy)
  *   attendance        -> ParentAttendance (lazy)
+ *   invoices          -> ParentInvoices (lazy, Stripe Elements payment)
  *   profile           -> ParentProfile (lazy)
  */
 export const router = createBrowserRouter([
@@ -284,6 +286,14 @@ export const router = createBrowserRouter([
         element: (
           <LazyPage>
             <ParentAttendance />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'invoices',
+        element: (
+          <LazyPage>
+            <ParentInvoices />
           </LazyPage>
         ),
       },
