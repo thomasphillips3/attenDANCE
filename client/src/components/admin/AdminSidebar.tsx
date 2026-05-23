@@ -4,12 +4,14 @@ import { useAuth } from '../../hooks/useAuth'
 /**
  * AdminSidebar -- vertical navigation for the admin panel.
  *
- * 5 nav items per user decision:
- * - Dashboard (grayed, coming soon)
- * - Students (active NavLink to /admin/students)
- * - Classes (active NavLink to /admin/classes)
- * - Attendance (grayed, coming soon)
- * - Reports (grayed, coming soon)
+ * Nav items:
+ * - Dashboard (NavLink to /admin/dashboard)
+ * - Students (NavLink to /admin/students)
+ * - Classes (NavLink to /admin/classes)
+ * - Billing (NavLink to /admin/billing)
+ * - Communications (NavLink to /admin/communications)
+ * - Attendance (NavLink to / — front desk view)
+ * - Reports (NavLink to /admin/reports — placeholder until Plan 05-02)
  *
  * Design:
  * - 240px fixed width, white background, right border
@@ -67,26 +69,28 @@ export default function AdminSidebar() {
 
       {/* Nav items */}
       <nav style={{ flex: 1, padding: '8px 0' }}>
-        {/* Dashboard -- grayed */}
-        <span
-          style={{
+        {/* Dashboard -- active */}
+        <NavLink
+          to="/admin/dashboard"
+          style={({ isActive }) => ({
             minHeight: 56,
             padding: '12px 16px',
             fontSize: 16,
             fontFamily: 'var(--font-body)',
-            fontWeight: 600,
+            fontWeight: isActive ? 700 : 600,
             display: 'flex',
             alignItems: 'center',
             gap: 12,
-            opacity: 0.4,
-            cursor: 'not-allowed',
-            color: 'var(--color-ink-2)',
-            borderLeft: '3px solid transparent',
-          }}
-          title="Coming soon"
+            textDecoration: 'none',
+            color: isActive ? 'var(--color-purple)' : 'var(--color-ink-2)',
+            background: isActive ? 'var(--color-purple-tint)' : 'transparent',
+            borderLeft: isActive
+              ? '3px solid var(--color-purple)'
+              : '3px solid transparent',
+          })}
         >
           Dashboard
-        </span>
+        </NavLink>
 
         {/* Students -- active */}
         <NavLink
@@ -180,47 +184,51 @@ export default function AdminSidebar() {
           Communications
         </NavLink>
 
-        {/* Attendance -- grayed */}
-        <span
-          style={{
+        {/* Attendance -- links to front desk view */}
+        <NavLink
+          to="/"
+          style={({ isActive }) => ({
             minHeight: 56,
             padding: '12px 16px',
             fontSize: 16,
             fontFamily: 'var(--font-body)',
-            fontWeight: 600,
+            fontWeight: isActive ? 700 : 600,
             display: 'flex',
             alignItems: 'center',
             gap: 12,
-            opacity: 0.4,
-            cursor: 'not-allowed',
-            color: 'var(--color-ink-2)',
-            borderLeft: '3px solid transparent',
-          }}
-          title="Coming soon"
+            textDecoration: 'none',
+            color: isActive ? 'var(--color-purple)' : 'var(--color-ink-2)',
+            background: isActive ? 'var(--color-purple-tint)' : 'transparent',
+            borderLeft: isActive
+              ? '3px solid var(--color-purple)'
+              : '3px solid transparent',
+          })}
         >
           Attendance
-        </span>
+        </NavLink>
 
-        {/* Reports -- grayed */}
-        <span
-          style={{
+        {/* Reports -- active (page built in Plan 05-02) */}
+        <NavLink
+          to="/admin/reports"
+          style={({ isActive }) => ({
             minHeight: 56,
             padding: '12px 16px',
             fontSize: 16,
             fontFamily: 'var(--font-body)',
-            fontWeight: 600,
+            fontWeight: isActive ? 700 : 600,
             display: 'flex',
             alignItems: 'center',
             gap: 12,
-            opacity: 0.4,
-            cursor: 'not-allowed',
-            color: 'var(--color-ink-2)',
-            borderLeft: '3px solid transparent',
-          }}
-          title="Coming soon"
+            textDecoration: 'none',
+            color: isActive ? 'var(--color-purple)' : 'var(--color-ink-2)',
+            background: isActive ? 'var(--color-purple-tint)' : 'transparent',
+            borderLeft: isActive
+              ? '3px solid var(--color-purple)'
+              : '3px solid transparent',
+          })}
         >
           Reports
-        </span>
+        </NavLink>
       </nav>
 
       {/* Bottom: admin label + user info + sign out */}

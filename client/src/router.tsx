@@ -19,6 +19,7 @@ const TuitionPlanForm = lazy(() => import('./screens/admin/TuitionPlanForm'))
 const InvoicesPage = lazy(() => import('./screens/admin/InvoicesPage'))
 const FamilyBilling = lazy(() => import('./screens/admin/FamilyBilling'))
 const NotificationsPage = lazy(() => import('./screens/admin/NotificationsPage'))
+const DashboardPage = lazy(() => import('./screens/admin/DashboardPage'))
 
 // Lazy-loaded front desk screen (Roster is heavier than ClassList)
 const Roster = lazy(() => import('./screens/Roster'))
@@ -75,7 +76,8 @@ function LazyPage({ children }: { children: React.ReactNode }) {
  *   index             -> ClassList
  *   roster/:sessionId -> Roster (lazy)
  * /admin              -> AdminLayout (auth + admin role gated)
- *   index             -> Navigate to "students"
+ *   index             -> Navigate to "dashboard"
+ *   dashboard         -> DashboardPage (lazy)
  *   students          -> StudentsPage (lazy placeholder)
  *   students/new      -> StudentForm (lazy placeholder)
  *   students/:id      -> StudentForm (lazy placeholder)
@@ -90,6 +92,8 @@ function LazyPage({ children }: { children: React.ReactNode }) {
  *   billing/invoices  -> InvoicesPage (lazy)
  *   billing/plans/new -> TuitionPlanForm (lazy)
  *   billing/plans/:id -> TuitionPlanForm (lazy, edit mode)
+ *   communications    -> NotificationsPage (lazy)
+ *   reports           -> Reports placeholder (Plan 05-02)
  * /parent/login       -> ParentLogin (no layout, magic link)
  * /parent             -> ParentLayout (auth + parent role gated)
  *   index             -> ParentDashboard (lazy)
@@ -122,7 +126,15 @@ export const router = createBrowserRouter([
     path: '/admin',
     element: <AdminLayout />,
     children: [
-      { index: true, element: <Navigate to="students" replace /> },
+      { index: true, element: <Navigate to="dashboard" replace /> },
+      {
+        path: 'dashboard',
+        element: (
+          <LazyPage>
+            <DashboardPage />
+          </LazyPage>
+        ),
+      },
       {
         path: 'students',
         element: (
@@ -249,6 +261,26 @@ export const router = createBrowserRouter([
           <LazyPage>
             <NotificationsPage />
           </LazyPage>
+        ),
+      },
+      {
+        path: 'reports',
+        element: (
+          <div style={{ padding: 48, textAlign: 'center' }}>
+            <h1
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 32,
+                color: 'var(--color-ink)',
+                margin: '0 0 8px',
+              }}
+            >
+              Reports
+            </h1>
+            <p style={{ fontSize: 16, color: 'var(--color-ink-3)' }}>
+              Coming soon in Plan 05-02
+            </p>
+          </div>
         ),
       },
     ],
