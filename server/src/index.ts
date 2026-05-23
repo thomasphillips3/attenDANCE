@@ -17,6 +17,7 @@ import webhooksRoutes from './routes/webhooks.js'
 import parentRoutes from './routes/parent.js'
 import notificationsRoutes from './routes/notifications.js'
 import dashboardRoutes from './routes/dashboard.js'
+import reportsRoutes from './routes/reports.js'
 
 const fastify = Fastify({
   logger: true,
@@ -46,6 +47,7 @@ await fastify.register(webhooksRoutes)
 await fastify.register(parentRoutes)
 await fastify.register(notificationsRoutes)
 await fastify.register(dashboardRoutes)
+await fastify.register(reportsRoutes)
 
 const port = Number(process.env.PORT) || 3001
 const host = '0.0.0.0'
