@@ -114,10 +114,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Admin Dashboard: KPI cards + today's class summary
-- [ ] 05-02-PLAN.md — Reports: enrollment, revenue, attendance + CSV export
-- [ ] 05-03-PLAN.md — Staff/Instructor Portal: schedule, attendance, hour logging
-- [ ] 05-04-PLAN.md — Event/Recital Management + Costume Tracking + Phase Verification
+- [x] 05-01-PLAN.md — Admin Dashboard: KPI cards + today's class summary (completed 2026-05-23)
+- [x] 05-02-PLAN.md — Reports: enrollment, revenue, attendance + CSV export (completed 2026-05-23)
+- [x] 05-03-PLAN.md — Staff/Instructor Portal: schedule, attendance, hour logging (completed 2026-05-23)
+- [x] 05-04-PLAN.md — Event/Recital Management + Costume Tracking + Phase Verification (completed 2026-05-23)
 **UI hint**: yes
 
 ## Progress
@@ -131,4 +131,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Studio Management | 4/4 | Complete   | 2026-05-22 |
 | 3. Billing | 4/4 | Complete | 2026-05-22 |
 | 4. Communications and Parent Portal | 4/4 | Complete | 2026-05-22 |
-| 5. Admin Dashboard and Operations | 0/4 | In Progress | - |
+| 5. Admin Dashboard and Operations | 4/4 | Complete | 2026-05-23 |

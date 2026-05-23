@@ -820,22 +820,13 @@ function useCreateStudent() {
 | A4 | At 75-150 students, client-side filtering is faster than server-side search | Architectural Responsibility Map | Low -- at this scale both approaches are fast; client-side avoids network round-trips for filter changes |
 | A5 | ILIKE with existing indexes is sufficient for student search at this scale | Anti-Patterns | Low -- pg_trgm/tsvector would be over-engineering for 150 records |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Photo storage bucket visibility**
-   - What we know: Public buckets allow anyone with the URL to view photos. Private buckets require signed URLs that expire.
-   - What is unclear: Are student photos sensitive enough to require signed URLs? Photos are small thumbnails visible to all staff.
-   - Recommendation: Use a public bucket for simplicity. Student photos are visible to any staff member logged in; the URL is not guessable (UUID path). If LaShelle considers photos sensitive, switch to a private bucket with short-lived signed URLs.
+1. **Photo storage bucket visibility** -- RESOLVED: Private bucket with org-scoped RLS policies. Children's photos require signed URLs. Upload path includes organization_id for storage policy scoping.
 
-2. **Admin sidebar navigation items**
-   - What we know: The admin.jsx mockup shows: Dashboard, Students, Classes, Attendance, Reports.
-   - What is unclear: Phase 2 only builds Students and Classes. Should the sidebar show all 5 items (with Dashboard/Attendance/Reports grayed out) or only show Students and Classes?
-   - Recommendation: Show all 5 items from the mockup. Gray out items not yet built with a "Coming soon" tooltip. This gives Carollette a preview of the full app and avoids layout shifts when later phases add items.
+2. **Admin sidebar navigation items** -- RESOLVED: All 5 items shown (Dashboard, Students, Classes, Attendance, Reports). Unbuilt items grayed out with "Coming soon" tooltip.
 
-3. **Transfer as single operation**
-   - What we know: CLAS-05 says "admin can drop or transfer students between classes." Transfer = drop from class A + enroll in class B.
-   - What is unclear: Should transfer be atomic (single transaction) or two separate operations? What if the target class is full?
-   - Recommendation: Atomic transaction. If the target class is full, the student goes on the target's waitlist but is still dropped from the source. Return both statuses to the UI so the admin sees exactly what happened.
+3. **Transfer as single operation** -- RESOLVED: Atomic single Postgres transaction via transfer_student() function. If target class is full, student goes on target waitlist but is still dropped from source.
 
 ## Environment Availability
 
