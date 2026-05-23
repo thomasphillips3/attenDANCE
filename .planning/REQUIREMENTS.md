@@ -83,9 +83,9 @@
 
 ### Staff Portal
 
-- [ ] **STAF-01**: Instructors can view their assigned classes and schedules
-- [ ] **STAF-02**: Instructors can mark attendance for their own classes
-- [ ] **STAF-03**: Instructors can log hours worked
+- [x] **STAF-01**: Instructors can view their assigned classes and schedules
+- [x] **STAF-02**: Instructors can mark attendance for their own classes
+- [x] **STAF-03**: Instructors can log hours worked
 
 ### Events & Recitals
 
@@ -186,9 +186,9 @@
 | DASH-05 | Phase 5 | Pending |
 | DASH-06 | Phase 5 | Pending |
 | DASH-07 | Phase 5 | Pending |
-| STAF-01 | Phase 5 | Pending |
-| STAF-02 | Phase 5 | Pending |
-| STAF-03 | Phase 5 | Pending |
+| STAF-01 | Phase 5 | Complete |
+| STAF-02 | Phase 5 | Complete |
+| STAF-03 | Phase 5 | Complete |
 | EVNT-01 | Phase 5 | Pending |
 | EVNT-02 | Phase 5 | Pending |
 | EVNT-03 | Phase 5 | Pending |

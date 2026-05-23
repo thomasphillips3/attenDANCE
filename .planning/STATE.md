@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-02 (Reports)
-last_updated: "2026-05-23T01:54:00.000Z"
+stopped_at: Completed 05-02 (Reports — Enrollment, Revenue, Attendance + CSV Export)
+last_updated: "2026-05-23T02:10:08.855Z"
 last_activity: 2026-05-23
 progress:
   total_phases: 5
-  completed_phases: 4
-  total_plans: 16
-  completed_plans: 16
+  completed_phases: 2
+  total_plans: 8
+  completed_plans: 11
   percent: 100
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-21)
 ## Current Position
 
 Phase: 5 of 5 (Admin Dashboard and Operations)
-Plan: 2 of 4 in current phase
-Status: Executing
+Plan: 3 of 4 in current phase
+Status: Ready to execute
 Last activity: 2026-05-23
 
-Progress: [███████░░░] 75%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [███████░░░] 75%
 | Phase 04-communications P02 | 7min | 3 tasks | 8 files |
 | Phase 04-communications P04 | 9min | 3 tasks | 6 files |
 | Phase 05-admin-dashboard P02 | 6min | 3 tasks | 4 files |
+| Phase 05 P03 | 11min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,9 @@ Recent decisions affecting current work:
 - [Phase 4]: Broadcast endpoint supports channel=email|sms|both with optional classIds filter for targeted sends
 - [Phase 5]: CSV export uses client-side Blob creation from API rows array (no server-side CSV generation)
 - [Phase 5]: Attendance rate = (present + late) / total records, consistent with dashboard KPI definition
+- [Phase ?]: Staff API plugin named 'staff-portal' to avoid conflict with GET /staff in classes.ts
+- [Phase ?]: Instructor staff record resolved via user_id lookup on each request
+- [Phase ?]: Hours endpoint returns calculated pay inline (total_hours * hourly_rate)
 
 ### Pending Todos
 
@@ -122,6 +126,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-23T01:54:00.000Z
+Last session: 2026-05-23T02:10:08.848Z
 Stopped at: Completed 05-02 (Reports — Enrollment, Revenue, Attendance + CSV Export)
 Resume file: None

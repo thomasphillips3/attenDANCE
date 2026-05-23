@@ -76,9 +76,9 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Stripe SDK + Tuition Plan & Discount CRUD (completed 2026-05-22)
-- [ ] 03-02-PLAN.md — Invoice Generation + Manual Payments + Stripe Customer
-- [ ] 03-03-PLAN.md — Stripe Webhook Handler + Recurring Billing
-- [ ] 03-04-PLAN.md — Payment History UI + Billing Integration Verification
+- [x] 03-02-PLAN.md — Invoice Generation + Manual Payments + Stripe Customer (completed 2026-05-22)
+- [x] 03-03-PLAN.md — Stripe Webhook Handler + Recurring Billing (completed 2026-05-22)
+- [x] 03-04-PLAN.md — Payment History UI + Billing Integration Verification (completed 2026-05-22)
 
 ### Phase 4: Communications and Parent Portal
 **Goal**: Parents can log in to view their classes, pay invoices, and update contact info — and the system sends timely email and SMS notifications for absences, payments, and announcements without admin effort.
@@ -91,7 +91,14 @@ Plans:
   3. Parents receive an email when their child is enrolled, when a payment is received, and when their child is marked absent
   4. Parents receive an SMS absence alert and a payment reminder SMS when a payment is due or overdue
   5. Admin can send a broadcast email or SMS to all families or a filtered subset by class
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [x] 04-01-PLAN.md — Notification infrastructure + Email (Resend) (completed 2026-05-22)
+- [x] 04-02-PLAN.md — SMS Notifications (Twilio) + Admin Broadcast (completed 2026-05-22)
+- [x] 04-03-PLAN.md — Parent Portal — Auth + Family Views (completed 2026-05-22)
+- [x] 04-04-PLAN.md — Parent Invoice Payment (Stripe Elements) + Phase Verification (completed 2026-05-22)
+
 **UI hint**: yes
 
 ### Phase 5: Admin Dashboard and Operations
@@ -104,7 +111,13 @@ Plans:
   2. Admin can generate enrollment, revenue, and attendance rate reports and export any of them as CSV
   3. Instructors can view their assigned class schedules, mark attendance for their own classes, and log hours worked
   4. Admin can create a recital or event, enroll students, and track costume status per student (not ordered through returned)
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Admin Dashboard: KPI cards + today's class summary
+- [ ] 05-02-PLAN.md — Reports: enrollment, revenue, attendance + CSV export
+- [ ] 05-03-PLAN.md — Staff/Instructor Portal: schedule, attendance, hour logging
+- [ ] 05-04-PLAN.md — Event/Recital Management + Costume Tracking + Phase Verification
 **UI hint**: yes
 
 ## Progress
@@ -116,6 +129,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Attendance MVP | 3/4 | In Progress|  |
 | 2. Studio Management | 4/4 | Complete   | 2026-05-22 |
-| 3. Billing | 0/4 | In Progress | - |
-| 4. Communications and Parent Portal | 0/TBD | Not started | - |
-| 5. Admin Dashboard and Operations | 0/TBD | Not started | - |
+| 3. Billing | 4/4 | Complete | 2026-05-22 |
+| 4. Communications and Parent Portal | 4/4 | Complete | 2026-05-22 |
+| 5. Admin Dashboard and Operations | 0/4 | In Progress | - |
