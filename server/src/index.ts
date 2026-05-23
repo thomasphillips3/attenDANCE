@@ -19,6 +19,7 @@ import notificationsRoutes from './routes/notifications.js'
 import dashboardRoutes from './routes/dashboard.js'
 import reportsRoutes from './routes/reports.js'
 import staffPortalRoutes from './routes/staff.js'
+import eventsRoutes from './routes/events.js'
 
 const fastify = Fastify({
   logger: true,
@@ -50,6 +51,7 @@ await fastify.register(notificationsRoutes)
 await fastify.register(dashboardRoutes)
 await fastify.register(reportsRoutes)
 await fastify.register(staffPortalRoutes)
+await fastify.register(eventsRoutes)
 
 const port = Number(process.env.PORT) || 3001
 const host = '0.0.0.0'
