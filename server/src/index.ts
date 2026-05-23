@@ -16,6 +16,7 @@ import billingRoutes from './routes/billing.js'
 import webhooksRoutes from './routes/webhooks.js'
 import parentRoutes from './routes/parent.js'
 import notificationsRoutes from './routes/notifications.js'
+import dashboardRoutes from './routes/dashboard.js'
 
 const fastify = Fastify({
   logger: true,
@@ -44,6 +45,7 @@ await fastify.register(billingRoutes)
 await fastify.register(webhooksRoutes)
 await fastify.register(parentRoutes)
 await fastify.register(notificationsRoutes)
+await fastify.register(dashboardRoutes)
 
 const port = Number(process.env.PORT) || 3001
 const host = '0.0.0.0'
