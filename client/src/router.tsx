@@ -22,6 +22,8 @@ const FamilyBilling = lazy(() => import('./screens/admin/FamilyBilling'))
 const NotificationsPage = lazy(() => import('./screens/admin/NotificationsPage'))
 const DashboardPage = lazy(() => import('./screens/admin/DashboardPage'))
 const ReportsPage = lazy(() => import('./screens/admin/ReportsPage'))
+const EventsPage = lazy(() => import('./screens/admin/EventsPage'))
+const EventDetail = lazy(() => import('./screens/admin/EventDetail'))
 
 // Lazy-loaded front desk screen (Roster is heavier than ClassList)
 const Roster = lazy(() => import('./screens/Roster'))
@@ -100,6 +102,8 @@ function LazyPage({ children }: { children: React.ReactNode }) {
  *   billing/plans/new -> TuitionPlanForm (lazy)
  *   billing/plans/:id -> TuitionPlanForm (lazy, edit mode)
  *   communications    -> NotificationsPage (lazy)
+ *   events            -> EventsPage (lazy, event list with filters)
+ *   events/:id        -> EventDetail (lazy, enrollment + costume tracking)
  *   reports           -> ReportsPage (lazy, enrollment/revenue/attendance tabs)
  * /parent/login       -> ParentLogin (no layout, magic link)
  * /parent             -> ParentLayout (auth + parent role gated)
@@ -271,6 +275,22 @@ export const router = createBrowserRouter([
         element: (
           <LazyPage>
             <NotificationsPage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'events',
+        element: (
+          <LazyPage>
+            <EventsPage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'events/:id',
+        element: (
+          <LazyPage>
+            <EventDetail />
           </LazyPage>
         ),
       },

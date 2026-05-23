@@ -10,6 +10,7 @@ import { useAuth } from '../../hooks/useAuth'
  * - Classes (NavLink to /admin/classes)
  * - Billing (NavLink to /admin/billing)
  * - Communications (NavLink to /admin/communications)
+ * - Events (NavLink to /admin/events)
  * - Attendance (NavLink to / — front desk view)
  * - Reports (NavLink to /admin/reports — placeholder until Plan 05-02)
  *
@@ -182,6 +183,29 @@ export default function AdminSidebar() {
           })}
         >
           Communications
+        </NavLink>
+
+        {/* Events -- active (Plan 05-04) */}
+        <NavLink
+          to="/admin/events"
+          style={({ isActive }) => ({
+            minHeight: 56,
+            padding: '12px 16px',
+            fontSize: 16,
+            fontFamily: 'var(--font-body)',
+            fontWeight: isActive ? 700 : 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            textDecoration: 'none',
+            color: isActive ? 'var(--color-purple)' : 'var(--color-ink-2)',
+            background: isActive ? 'var(--color-purple-tint)' : 'transparent',
+            borderLeft: isActive
+              ? '3px solid var(--color-purple)'
+              : '3px solid transparent',
+          })}
+        >
+          Events
         </NavLink>
 
         {/* Attendance -- links to front desk view */}
