@@ -195,7 +195,7 @@ export default function ReportsPage() {
 
   // ── CSV export handler ─────────────────────────────────────────────
   function handleExport() {
-    let rows: Record<string, unknown>[] = []
+    let rows: Record<string, any>[] = []
     let filename = 'report.csv'
 
     if (tab === 'enrollment' && enrollment.data) {

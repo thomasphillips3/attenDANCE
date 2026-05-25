@@ -89,7 +89,7 @@ export default function ClassForm() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<ClassFormData>({
-    resolver: zodResolver(classFormSchema),
+    resolver: zodResolver(classFormSchema) as any,
     defaultValues: {
       name: '',
       type: 'recurring',

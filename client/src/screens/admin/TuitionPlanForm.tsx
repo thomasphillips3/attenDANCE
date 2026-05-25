@@ -78,7 +78,7 @@ export default function TuitionPlanForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<TuitionPlanFormData>({
-    resolver: zodResolver(tuitionPlanSchema),
+    resolver: zodResolver(tuitionPlanSchema) as any,
     defaultValues: {
       class_id: '',
       amount: 0,

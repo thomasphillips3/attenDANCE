@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import {
   Dialog,
   DialogPortal,
@@ -57,7 +57,6 @@ function formatDate(dateStr: string): string {
  */
 export default function ClassDetail() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { data: classData, isLoading } = useClass(id)
   const { data: allClasses } = useClasses()
   const dropMutation = useDropStudent()
